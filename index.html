@@ -3,8 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GoalLive PRO | البث المباشر</title>
     
+    <title>GoalLive PRO | البث المباشر للمباريات - Live Football Streaming</title>
+    <meta name="description" content="شاهد البث المباشر للمباريات اليوم بجودة عالية وبدون تقطيع. GoalLive PRO يقدم تغطية حصرية للدوري المغربي، الإسباني، والإنجليزي. Watch live football matches in HD.">
+    <meta name="keywords" content="كورة لايف, بث مباشر, مباريات اليوم, GoalLive PRO, koora live, live streaming, football live, الدوري المغربي مباشر">
+    <meta name="author" content="GoalLive PRO">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://t.me/goallivepro">
+    <meta property="og:title" content="GoalLive PRO | شاهد مباريات اليوم بث مباشر">
+    <meta property="og:description" content="أفضل منصة لمشاهدة المباريات بجودة عالية وبدون إعلانات مزعجة. تابع فريقك المفضل الآن.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/33/33736.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="GoalLive PRO | Live Football Streaming">
+    <meta property="twitter:description" content="Watch your favorite football matches live in HD for free.">
+
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -42,11 +56,8 @@
 
         .tg-link { background: #0088cc; color: white; display: block; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none; margin: 10px 0; font-weight: bold; }
         
-        /* Match Card */
         .match-grid { display: grid; gap: 15px; padding: 10px 0; }
-        .match-card { background: var(--card); border-radius: 15px; padding: 15px; border: 1px solid #30363d; cursor: pointer; transition: 0.3s; }
-        .match-card:hover { border-color: var(--primary); }
-        
+        .match-card { background: var(--card); border-radius: 15px; padding: 15px; border: 1px solid #30363d; cursor: pointer; }
         .league-name { font-size: 11px; text-align: center; color: #8b949e; margin-bottom: 10px; font-weight: bold; border-bottom: 1px solid #21262d; padding-bottom: 5px; }
         
         .match-content { display: flex; align-items: center; justify-content: space-between; }
@@ -60,10 +71,9 @@
         .status-live { background: var(--success); color: white; animation: blink 1s infinite; }
         .status-ended { background: var(--danger); color: white; }
         
-        .match-time { font-size: 17px; font-weight: 900; display: block; margin: 2px 0; direction: ltr; }
+        .match-time { font-size: 18px; font-weight: 900; display: block; margin: 2px 0; direction: ltr; letter-spacing: 1px; }
         .countdown { font-size: 11px; color: var(--primary); font-weight: bold; display: block; direction: ltr; }
 
-        /* Player Section */
         #player-section { display: none; background: #000; border-radius: 15px; overflow: hidden; margin-top: 10px; border: 1px solid #30363d; }
         .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; }
         video, iframe { width: 100%; height: 100%; border: none; }
@@ -134,17 +144,10 @@
                 const lines = data.split('\n').slice(1);
                 matches = lines.map(line => {
                     const c = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(x => x.replace(/^"|"$/g, '').trim());
-                    return { 
-                        t1: c[0], l1: c[1] || DEFAULT_LOGO, 
-                        t2: c[2], l2: c[3] || DEFAULT_LOGO, 
-                        time: c[4], 
-                        links: [c[5], c[6]],
-                        league: c[7] || "مباراة دولية" 
-                    };
+                    return { t1: c[0], l1: c[1] || DEFAULT_LOGO, t2: c[2], l2: c[3] || DEFAULT_LOGO, time: c[4], links: [c[5], c[6]], league: c[7] || "مباراة" };
                 }).filter(m => m.t1);
                 renderMatches();
-                setInterval(renderMatches, 30000); 
-            } catch (e) { console.error("CSV Load Error"); }
+            } catch (e) { console.error("CSV Error"); }
         }
 
         function getStatus(matchDateStr) {
@@ -152,21 +155,9 @@
             const now = new Date();
             const diffMs = matchDate - now;
             const diffMin = diffMs / (1000 * 60);
-
-            if (diffMs > 0) {
-                return { label: "قريباً", class: "status-soon", countdown: true };
-            } else if (diffMin > -130) { 
-                return { label: "جارية الآن", class: "status-live", countdown: false };
-            } else {
-                return { label: "انتهت", class: "status-ended", countdown: false };
-            }
-        }
-
-        function formatCountdown(dateStr) {
-            const diff = new Date(dateStr) - new Date();
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            return `Starts in: ${h.toLocaleString('en-US')}h ${m.toLocaleString('en-US')}m`;
+            if (diffMs > 0) return { label: "قريباً", class: "status-soon", countdown: true };
+            else if (diffMin > -130) return { label: "جارية الآن", class: "status-live", countdown: false };
+            else return { label: "انتهت", class: "status-ended", countdown: false };
         }
 
         function renderMatches() {
@@ -175,9 +166,8 @@
             grid.innerHTML = matches.map((m, i) => {
                 const status = getStatus(m.time);
                 const timeObj = new Date(m.time);
-                // إجبار الأرقام الإنجليزية باستعمال en-US
-                const timeStr = timeObj.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', minute: '2-digit', hour12: true 
+                const timeStr = timeObj.toLocaleTimeString('en-GB', { 
+                    hour: '2-digit', minute: '2-digit', hour12: false 
                 });
 
                 return `
@@ -191,7 +181,7 @@
                         <div class="info-center">
                             <span class="match-status ${status.class}">${status.label}</span>
                             <span class="match-time">${timeStr}</span>
-                            ${status.countdown ? `<span class="countdown">${formatCountdown(m.time)}</span>` : ''}
+                            ${status.countdown ? `<span class="countdown">Starts in: ${Math.floor((new Date(m.time)-new Date())/3600000)}h ${Math.floor(((new Date(m.time)-new Date())%3600000)/60000)}m</span>` : ''}
                         </div>
                         <div class="team">
                             <img src="${m.l2.replace('http://', 'https://')}" onerror="this.src='${DEFAULT_LOGO}'">
@@ -204,10 +194,8 @@
 
         function triggerOverlay(idx) {
             selectedMatchIndex = idx;
-            const overlay = document.getElementById('ad-overlay');
-            overlay.style.display = 'flex';
+            document.getElementById('ad-overlay').style.display = 'flex';
             let timeLeft = 10;
-            document.getElementById('seconds').innerText = timeLeft;
             const timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById('seconds').innerText = timeLeft;
@@ -225,25 +213,17 @@
             document.getElementById('match-grid').style.display = 'none';
             document.getElementById('player-section').style.display = 'block';
             document.getElementById('match-label').innerText = m.t1 + " vs " + m.t2;
-
             const links = m.links.filter(l => l && l.length > 5);
-            document.getElementById('srv-bar').innerHTML = links.map((l, i) => `
-                <button class="srv-btn ${i===0?'active':''}" onclick="bootStream('${l.trim()}', this)">Server ${i+1}</button>
-            `).join('');
-
+            document.getElementById('srv-bar').innerHTML = links.map((l, i) => `<button class="srv-btn ${i===0?'active':''}" onclick="bootStream('${l.trim()}', this)">Server ${i+1}</button>`).join('');
             bootStream(links[0].trim());
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function bootStream(url, btn) {
-            if(btn) {
-                document.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
+            if(btn) { document.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
             const root = document.getElementById('video-root');
             root.innerHTML = ''; 
             if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
-
             if (url.includes('.m3u8')) {
                 const video = document.createElement('video');
                 video.id = 'player'; video.controls = true; video.playsinline = true; video.autoplay = true;
@@ -255,13 +235,11 @@
                     hlsPlayer.on(Hls.Events.ERROR, (e, d) => { if(d.fatal) root.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`; });
                 } else { video.src = url; video.play(); }
                 new Plyr(video, { controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] });
-            } else {
-                root.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-            }
+            } else { root.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`; }
         }
 
         function stopPlayer() {
-            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
+            if(hlsPlayer) hlsPlayer.destroy();
             document.getElementById('player-section').style.display = 'none';
             document.getElementById('match-grid').style.display = 'grid';
             document.getElementById('video-root').innerHTML = '';
