@@ -13,9 +13,9 @@
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
     <style>
-        :root { --primary: #ff6600; --bg: #0b0e14; --card: #161b22; }
+        :root { --primary: #ff6600; --bg: #0b0e14; --card: #161b22; --success: #2ea043; --danger: #da3633; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background: var(--bg); color: white; line-height: 1.4; }
+        body { background: var(--bg); color: white; line-height: 1.4; padding-bottom: 30px; }
         .container { width: 95%; max-width: 800px; margin: 0 auto; }
         
         header { padding: 15px 0; text-align: center; border-bottom: 1px solid #30363d; margin-bottom: 10px; }
@@ -41,17 +41,31 @@
         }
 
         .tg-link { background: #0088cc; color: white; display: block; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none; margin: 10px 0; font-weight: bold; }
-        .match-grid { display: grid; gap: 12px; padding: 10px 0; }
-        .match-card { background: var(--card); border-radius: 15px; padding: 15px; display: flex; align-items: center; cursor: pointer; border: 1px solid #30363d; }
+        
+        /* Match Card */
+        .match-grid { display: grid; gap: 15px; padding: 10px 0; }
+        .match-card { background: var(--card); border-radius: 15px; padding: 15px; border: 1px solid #30363d; cursor: pointer; transition: 0.3s; }
+        .match-card:hover { border-color: var(--primary); }
+        
+        .league-name { font-size: 11px; text-align: center; color: #8b949e; margin-bottom: 10px; font-weight: bold; border-bottom: 1px solid #21262d; padding-bottom: 5px; }
+        
+        .match-content { display: flex; align-items: center; justify-content: space-between; }
         .team { flex: 1; text-align: center; }
-        .team img { 
-            width: 50px; height: 50px; object-fit: contain; 
-            border-radius: 8px; background: #fff; padding: 3px; margin-bottom: 5px;
-        }
-        .vs { background: #000; color: var(--primary); padding: 5px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; margin: 0 10px; }
+        .team img { width: 50px; height: 50px; object-fit: contain; border-radius: 8px; background: #fff; padding: 3px; margin-bottom: 5px; }
+        .team p { font-size: 13px; font-weight: bold; }
 
+        .info-center { flex: 1.2; text-align: center; }
+        .match-status { font-size: 11px; padding: 3px 8px; border-radius: 5px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+        .status-soon { background: #21262d; color: #8b949e; }
+        .status-live { background: var(--success); color: white; animation: blink 1s infinite; }
+        .status-ended { background: var(--danger); color: white; }
+        
+        .match-time { font-size: 17px; font-weight: 900; display: block; margin: 2px 0; direction: ltr; }
+        .countdown { font-size: 11px; color: var(--primary); font-weight: bold; display: block; direction: ltr; }
+
+        /* Player Section */
         #player-section { display: none; background: #000; border-radius: 15px; overflow: hidden; margin-top: 10px; border: 1px solid #30363d; }
-        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; }
         video, iframe { width: 100%; height: 100%; border: none; }
         .player-footer { background: #161b22; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .btn-close { background: #ff4444; color: white; border: none; padding: 7px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; }
@@ -60,6 +74,7 @@
         .srv-btn { background: #21262d; color: #8b949e; border: none; padding: 8px 16px; border-radius: 8px; white-space: nowrap; cursor: pointer; font-size: 13px; }
         .srv-btn.active { background: var(--primary); color: #000; font-weight: 900; }
         
+        @keyframes blink { 50% { opacity: 0.5; } }
         .loader { width: 40px; height: 40px; border: 4px solid #222; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -80,20 +95,22 @@
                 })({})
                 </script>
             </div>
-            <button class="close-ad-btn" id="close-ad" onclick="startActualStream()">اضغط هنا لمشاهدة البث المباشر</button>
+            <button class="close-ad-btn" id="close-ad" onclick="startActualStream()">مشاهدة المباراة الآن</button>
         </div>
     </div>
 
     <div class="container">
         <header><div class="logo">GOAL<span>LIVE</span> PRO</div></header>
 
-        <a href="https://t.me/goallivepro" target="_blank" class="tg-link"><i class="fab fa-telegram"></i> انضم لقناتنا على تليجرام</a>
+        <a href="https://t.me/goallivepro" target="_blank" class="tg-link">
+            <i class="fab fa-telegram"></i> تابعنا على تليجرام لروابط حصرية
+        </a>
 
         <div id="player-section">
             <div class="video-wrapper" id="video-root"></div>
             <div class="player-footer">
                 <span id="match-label" style="font-size: 14px; font-weight: bold; color: var(--primary);"></span>
-                <button class="btn-close" onclick="stopPlayer()">إغلاق</button>
+                <button class="btn-close" onclick="stopPlayer()">إغلاق البث</button>
             </div>
             <div id="srv-bar" class="srv-bar"></div>
         </div>
@@ -117,35 +134,80 @@
                 const lines = data.split('\n').slice(1);
                 matches = lines.map(line => {
                     const c = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(x => x.replace(/^"|"$/g, '').trim());
-                    let img1 = c[1] ? c[1].replace('http://', 'https://') : DEFAULT_LOGO;
-                    let img2 = c[3] ? c[3].replace('http://', 'https://') : DEFAULT_LOGO;
-                    return { t1: c[0], l1: img1, t2: c[2], l2: img2, time: c[4], links: [c[5], c[6]] };
+                    return { 
+                        t1: c[0], l1: c[1] || DEFAULT_LOGO, 
+                        t2: c[2], l2: c[3] || DEFAULT_LOGO, 
+                        time: c[4], 
+                        links: [c[5], c[6]],
+                        league: c[7] || "مباراة دولية" 
+                    };
                 }).filter(m => m.t1);
                 renderMatches();
-            } catch (e) { console.error("CSV Error"); }
+                setInterval(renderMatches, 30000); 
+            } catch (e) { console.error("CSV Load Error"); }
+        }
+
+        function getStatus(matchDateStr) {
+            const matchDate = new Date(matchDateStr);
+            const now = new Date();
+            const diffMs = matchDate - now;
+            const diffMin = diffMs / (1000 * 60);
+
+            if (diffMs > 0) {
+                return { label: "قريباً", class: "status-soon", countdown: true };
+            } else if (diffMin > -130) { 
+                return { label: "جارية الآن", class: "status-live", countdown: false };
+            } else {
+                return { label: "انتهت", class: "status-ended", countdown: false };
+            }
+        }
+
+        function formatCountdown(dateStr) {
+            const diff = new Date(dateStr) - new Date();
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            return `Starts in: ${h.toLocaleString('en-US')}h ${m.toLocaleString('en-US')}m`;
         }
 
         function renderMatches() {
             const grid = document.getElementById('match-grid');
-            grid.innerHTML = matches.map((m, i) => `
+            if(!grid) return;
+            grid.innerHTML = matches.map((m, i) => {
+                const status = getStatus(m.time);
+                const timeObj = new Date(m.time);
+                // إجبار الأرقام الإنجليزية باستعمال en-US
+                const timeStr = timeObj.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', minute: '2-digit', hour12: true 
+                });
+
+                return `
                 <div class="match-card" onclick="triggerOverlay(${i})">
-                    <div class="team">
-                        <img src="${m.l1}" onerror="this.src='${DEFAULT_LOGO}'">
-                        <p style="font-size:12px; font-weight:bold;">${m.t1}</p>
+                    <div class="league-name">${m.league}</div>
+                    <div class="match-content">
+                        <div class="team">
+                            <img src="${m.l1.replace('http://', 'https://')}" onerror="this.src='${DEFAULT_LOGO}'">
+                            <p>${m.t1}</p>
+                        </div>
+                        <div class="info-center">
+                            <span class="match-status ${status.class}">${status.label}</span>
+                            <span class="match-time">${timeStr}</span>
+                            ${status.countdown ? `<span class="countdown">${formatCountdown(m.time)}</span>` : ''}
+                        </div>
+                        <div class="team">
+                            <img src="${m.l2.replace('http://', 'https://')}" onerror="this.src='${DEFAULT_LOGO}'">
+                            <p>${m.t2}</p>
+                        </div>
                     </div>
-                    <div class="vs">VS</div>
-                    <div class="team">
-                        <img src="${m.l2}" onerror="this.src='${DEFAULT_LOGO}'">
-                        <p style="font-size:12px; font-weight:bold;">${m.t2}</p>
-                    </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
         function triggerOverlay(idx) {
             selectedMatchIndex = idx;
-            document.getElementById('ad-overlay').style.display = 'flex';
+            const overlay = document.getElementById('ad-overlay');
+            overlay.style.display = 'flex';
             let timeLeft = 10;
+            document.getElementById('seconds').innerText = timeLeft;
             const timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById('seconds').innerText = timeLeft;
@@ -162,14 +224,15 @@
             const m = matches[selectedMatchIndex];
             document.getElementById('match-grid').style.display = 'none';
             document.getElementById('player-section').style.display = 'block';
-            document.getElementById('match-label').innerText = m.t1 + " VS " + m.t2;
+            document.getElementById('match-label').innerText = m.t1 + " vs " + m.t2;
 
             const links = m.links.filter(l => l && l.length > 5);
             document.getElementById('srv-bar').innerHTML = links.map((l, i) => `
-                <button class="srv-btn ${i===0?'active':''}" onclick="bootStream('${l}', this)">سيرفر ${i+1}</button>
+                <button class="srv-btn ${i===0?'active':''}" onclick="bootStream('${l.trim()}', this)">Server ${i+1}</button>
             `).join('');
 
-            bootStream(links[0]);
+            bootStream(links[0].trim());
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function bootStream(url, btn) {
@@ -181,35 +244,24 @@
             root.innerHTML = ''; 
             if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
 
-            const cleanUrl = url.trim();
-
-            if (cleanUrl.includes('.m3u8')) {
+            if (url.includes('.m3u8')) {
                 const video = document.createElement('video');
-                video.id = 'player';
-                video.controls = true;
-                video.playsinline = true;
+                video.id = 'player'; video.controls = true; video.playsinline = true; video.autoplay = true;
                 root.appendChild(video);
-
                 if (Hls.isSupported()) {
-                    hlsPlayer = new Hls({ xhrSetup: function(xhr) { xhr.withCredentials = false; } });
-                    hlsPlayer.loadSource(cleanUrl);
-                    hlsPlayer.attachMedia(video);
+                    hlsPlayer = new Hls({ xhrSetup: xhr => xhr.withCredentials = false });
+                    hlsPlayer.loadSource(url); hlsPlayer.attachMedia(video);
                     hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-                    hlsPlayer.on(Hls.Events.ERROR, (e, data) => {
-                        if(data.fatal) root.innerHTML = `<iframe src="${cleanUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-                    });
-                } else {
-                    video.src = cleanUrl;
-                    video.play();
-                }
+                    hlsPlayer.on(Hls.Events.ERROR, (e, d) => { if(d.fatal) root.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`; });
+                } else { video.src = url; video.play(); }
                 new Plyr(video, { controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] });
             } else {
-                root.innerHTML = `<iframe src="${cleanUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+                root.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
             }
         }
 
         function stopPlayer() {
-            if(hlsPlayer) hlsPlayer.destroy();
+            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
             document.getElementById('player-section').style.display = 'none';
             document.getElementById('match-grid').style.display = 'grid';
             document.getElementById('video-root').innerHTML = '';
