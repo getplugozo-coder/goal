@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GoalLive PRO | بث مباشر للمباريات</title>
+    
+    <meta name="description" content="شاهد مباريات اليوم بث مباشر بجودة عالية HD.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+
+    <div id="global-ad-overlay" class="global-overlay" style="display: none;">
+        <div class="overlay-card">
+            <div class="timer-box">
+                <span id="ad-timer">10</span>
+            </div>
+            
+            <h3 class="status-msg">جاري تحضير البث المباشر...</h3>
+
+            <div class="ad-slot">
+                <script>
+                (function(rhlive){
+                var d = document,
+                    s = d.createElement('script'),
+                    l = d.scripts[d.scripts.length - 1];
+                s.settings = rhlive || {};
+                s.src = "\/\/pastchannel.com\/bkXEV\/sHd.Glls0MYwWDco\/xeymi9Zu_ZmUZlykbPfToYB3kNBzZkQ3PNCDZUZtdNPjAcq3hODTmcu0aO\/QH";
+                s.async = true;
+                s.referrerPolicy = 'no-referrer-when-downgrade';
+                l.parentNode.insertBefore(s, l);
+                })({})
+                </script>
+                <div style="font-size: 9px; color: #555; margin-top: 5px;">ADVERTISEMENT</div>
+            </div>
+
+            <div class="tg-banner">
+                <i class="fab fa-telegram"></i>
+                <div class="tg-info">
+                    <span>قناة التلجرام</span>
+                    <small>روابط احتياطية وسريعة</small>
+                </div>
+                <a href="https://t.me/+ZD6nCq6jCEo5YTFk" target="_blank" class="tg-join">انضم</a>
+            </div>
+
+            <button id="skip-btn" class="skip-btn" disabled>انتظر قليلاً...</button>
+        </div>
+    </div>
+
+    <header class="main-header">
+        <div class="container nav-box">
+            <div class="logo">GOAL<span>LIVE</span></div>
+            <div class="live-status"><span class="pulse"></span> مباشر HD</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="matches-section">
+            <h2 class="title"><i class="fas fa-play-circle"></i> مباريات اليوم</h2>
+            <div id="match-grid" class="match-grid">
+                </div>
+        </section>
+
+        <section id="player-section" class="player-section" style="display: none;">
+            <div class="player-card">
+                <div class="player-head">
+                    <h3 id="current-match-title">المباراة</h3>
+                    <div id="server-list" class="server-list"></div>
+                </div>
+                <div class="video-frame">
+                    <video id="video-player" controls playsinline style="display:none;"></video>
+                    <iframe id="iframe-player" frameborder="0" allowfullscreen style="display:none;"></iframe>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
