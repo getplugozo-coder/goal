@@ -3,70 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GoalLive PRO | البث الاحترافي النهائي</title>
+    <title>GoalLive Ultra | تجربة البث القصوى</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
     <style>
         :root {
             --primary: #ff6600;
-            --bg-dark: #05070a;
-            --bg-card: #0d1117;
-            --text-main: #ffffff;
-            --glass: rgba(255, 255, 255, 0.05);
+            --secondary: #12141d;
+            --accent: #00d2ff;
+            --text: #ffffff;
+            --tg-color: #0088cc;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; }
-        .container { width: 95%; max-width: 1100px; margin: 0 auto; }
-
-        /* Header */
-        .main-header { background: #0d1117; padding: 15px 0; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 900; }
-        .logo span { color: var(--primary); }
-
-        /* Match Grid */
-        .match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 30px 0; }
-        .match-card { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid var(--glass); cursor: pointer; transition: 0.3s; text-align: center; }
-        .match-card:hover { transform: translateY(-5px); border-color: var(--primary); }
-        .team-row { display: flex; justify-content: space-around; align-items: center; margin-bottom: 15px; }
-        .team-row img { width: 60px; height: 60px; object-fit: contain; }
-        .vs-badge { background: #1a1f26; color: var(--primary); padding: 5px 15px; border-radius: 10px; font-weight: 900; }
-
-        /* Player Wrapper */
-        .player-wrapper { display: none; margin: 20px 0 50px; background: #000; border-radius: 25px; overflow: hidden; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .player-header { background: #1a1f26; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .back-btn { background: var(--primary); color: #000; border: none; padding: 8px 18px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; }
         
-        .video-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-        
-        .servers-bar { background: #11151c; padding: 15px; display: flex; gap: 10px; overflow-x: auto; border-top: 1px solid #333; }
-        .srv-btn { background: #252a33; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; white-space: nowrap; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; }
-        .srv-btn.active { background: var(--primary); color: #000; }
+        body { 
+            background: radial-gradient(circle at top right, #1a1c24, #050608);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container { width: 92%; max-width: 900px; margin: 0 auto; }
+
+        /* Header Premium */
+        header {
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo { font-size: 26px; font-weight: 900; letter-spacing: -1px; }
+        .logo span { color: var(--primary); text-shadow: 0 0 15px rgba(255,102,0,0.4); }
+
+        /* Telegram VIP Card */
+        .tg-card {
+            background: linear-gradient(135deg, var(--tg-color), #005580);
+            padding: 15px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0, 136, 204, 0.2);
+            transition: 0.3s;
+        }
+        .tg-card:hover { transform: scale(1.02); }
+
+        /* Match Cards Grid */
+        .match-grid { display: grid; gap: 15px; padding-bottom: 30px; }
+        .match-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: 0.4s;
+        }
+        .match-card:hover { background: rgba(255,255,255,0.07); border-color: var(--primary); }
+        .team { text-align: center; flex: 1; }
+        .team img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 8px; }
+        .vs { font-weight: 900; color: var(--primary); font-size: 14px; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 8px; }
+
+        /* --- نـطـويـر الـمـشـغـل (Ultra Player) --- */
+        .player-section { 
+            display: none; 
+            margin-top: 10px;
+            animation: slideIn 0.4s ease-out;
+        }
+        .player-box {
+            background: #000;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        .video-container { width: 100%; aspect-ratio: 16/9; background: #000; display: flex; align-items: center; }
+        video, iframe { width: 100%; height: 100%; border: none; }
+
+        /* Control Bar */
+        .player-info {
+            background: var(--secondary);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-back { background: #2a2d3e; color: white; border: none; padding: 8px 16px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 13px; }
+
+        .servers-list {
+            display: flex; gap: 8px; overflow-x: auto; padding: 12px;
+            background: #0a0b10; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .srv-node {
+            background: #1a1c26; color: #888; border: none; padding: 8px 20px;
+            border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: bold;
+            transition: 0.3s; white-space: nowrap;
+        }
+        .srv-node.active { background: var(--primary); color: #000; box-shadow: 0 0 15px rgba(255,102,0,0.3); }
 
         /* Ad Overlay */
-        .global-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .overlay-card { background: var(--bg-card); width: 90%; max-width: 420px; padding: 30px; border-radius: 30px; border: 1px solid var(--primary); text-align: center; }
-        .timer-ring { width: 60px; height: 60px; border: 4px solid var(--primary); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: var(--primary); }
-        .skip-btn { background: var(--primary); color: #000; border: none; padding: 18px; border-radius: 15px; font-weight: 900; width: 100%; cursor: pointer; margin-top: 20px; }
-        .skip-btn:disabled { background: #333; color: #666; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .overlay-box { text-align: center; width: 90%; max-width: 400px; }
+        .loader { width: 60px; height: 60px; border: 5px solid #1a1c26; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; margin: 0 auto 20px; }
 
-        /* Customizing Plyr Primary Color */
-        :root { --plyr-color-main: #ff6600; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Hide Scrollbar */
+        .servers-list::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="global-ad-overlay" class="global-overlay">
-        <div class="overlay-card">
-            <div class="timer-ring" id="ad-timer">10</div>
-            <h3>جاري تجهيز السيرفر...</h3>
-            <div style="background:#000; height:160px; border-radius:15px; margin:20px 0; overflow:hidden;">
+    <div class="container">
+        <header>
+            <div class="logo">GOAL<span>LIVE</span> ULTRA</div>
+            <div id="live-indicator"><i class="fas fa-satellite-dish" style="color: var(--primary); animation: pulse 1s infinite;"></i></div>
+        </header>
+
+        <a href="https://t.me/YOUR_CHANNEL" class="tg-card">
+            <div>
+                <p style="font-size: 12px; opacity: 0.8;">انضم الآن لأسرة تليجرام</p>
+                <h4 style="font-size: 16px;">قناتنا الاحتياطية (البث المباشر)</h4>
+            </div>
+            <i class="fab fa-telegram fa-2x"></i>
+        </a>
+
+        <div id="player-section" class="player-section">
+            <div class="player-box">
+                <div class="video-container" id="video-root"></div>
+                <div class="player-info">
+                    <button class="btn-back" onclick="exitPlayer()"><i class="fas fa-times"></i> إغلاق</button>
+                    <span id="match-title-ui" style="font-size: 13px; font-weight: bold; color: var(--primary);"></span>
+                </div>
+                <div id="servers-bar" class="servers-list"></div>
+            </div>
+        </div>
+
+        <div id="match-grid" class="match-grid">
+            <center style="padding: 100px; opacity: 0.5;"><div class="loader"></div> جاري تحميل السيرفرات...</center>
+        </div>
+    </div>
+
+    <div id="ad-overlay" class="overlay">
+        <div class="overlay-box">
+            <div class="loader"></div>
+            <h3 id="ad-status">جاري الاتصال بالسيرفر...</h3>
+            <div id="ad-slot" style="margin: 20px 0; background: #111; height: 150px; border-radius: 15px; overflow: hidden;">
                 <script>
                 (function(rhlive){
                 var d = document, s = d.createElement('script'), l = d.scripts[d.scripts.length - 1];
@@ -77,132 +175,108 @@
                 })({})
                 </script>
             </div>
-            <button id="skip-btn" class="skip-btn" disabled>يرجى الانتظار...</button>
+            <button id="skip-btn" style="background:var(--primary); border:none; padding:15px; width:100%; border-radius:12px; font-weight:900; cursor:pointer;" disabled>انتظر...</button>
         </div>
     </div>
-
-    <header class="main-header">
-        <div class="container header-flex">
-            <div class="logo">GOAL<span>LIVE</span> PRO</div>
-            <div style="font-size: 13px;"><i class="fas fa-circle" style="color:red; animation: blink 1s infinite;"></i> مباشر</div>
-        </div>
-    </header>
-
-    <div class="container">
-        <div id="player-wrapper" class="player-wrapper">
-            <div class="player-header">
-                <button class="back-btn" onclick="closePlayer()"><i class="fas fa-arrow-right"></i> الرئيسية</button>
-                <div id="match-title-ui" style="font-weight: bold; font-size: 14px;"></div>
-            </div>
-            <div class="video-container" id="video-root"></div>
-            <div id="servers-bar" class="servers-bar"></div>
-        </div>
-
-        <div id="match-grid" class="match-grid">
-            <center style="grid-column: 1/-1; padding: 50px;">جاري تحميل جدول المباريات...</center>
-        </div>
-    </div>
-
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
     <script>
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv';
+        const CSV_ID = '2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co';
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/e/${CSV_ID}/pub?output=csv`;
         let matches = [];
-        let plyrPlayer;
+        let hls;
 
-        async function init() {
+        async function fetchMatches() {
             try {
-                const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEET_URL));
-                const data = await res.text();
-                const rows = data.split(/\r?\n/).slice(1);
-                matches = rows.map(r => {
-                    const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    const clean = (v) => v ? v.replace(/^"|"$/g, '').trim() : "";
-                    return { t1: clean(c[0]), l1: clean(c[1]), t2: clean(c[2]), l2: clean(c[3]), time: clean(c[4]), links: [clean(c[5]), clean(c[6])] };
+                const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(CSV_URL));
+                const t = await r.text();
+                const lines = t.split('\n').slice(1);
+                matches = lines.map(line => {
+                    const c = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(x => x.replace(/^"|"$/g, '').trim());
+                    return { t1: c[0], l1: c[1], t2: c[2], l2: c[3], time: c[4], links: [c[5], c[6]] };
                 }).filter(m => m.t1);
-                render();
-            } catch (e) { console.error("Error"); }
+                renderGrid();
+            } catch (e) { console.error("Error loading CSV"); }
         }
 
-        function render() {
+        function renderGrid() {
             const grid = document.getElementById('match-grid');
             grid.innerHTML = matches.map((m, i) => `
-                <div class="match-card" onclick="openAd(${i})">
-                    <div class="team-row">
-                        <div><img src="${m.l1}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/33/33736.png'"><br><b>${m.t1}</b></div>
-                        <div class="vs-badge">VS</div>
-                        <div><img src="${m.l2}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/33/33736.png'"><br><b>${m.t2}</b></div>
-                    </div>
-                    <div style="font-size:12px; color:#888;">${m.time}</div>
+                <div class="match-card" onclick="showAd(${i})">
+                    <div class="team"><img src="${m.l1}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/33/33736.png'"><br><b>${m.t1}</b></div>
+                    <div class="vs">LIVE</div>
+                    <div class="team"><img src="${m.l2}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/33/33736.png'"><br><b>${m.t2}</b></div>
                 </div>
             `).join('');
         }
 
-        function openAd(idx) {
-            const ov = document.getElementById('global-ad-overlay');
+        function showAd(idx) {
+            const ov = document.getElementById('ad-overlay');
             const btn = document.getElementById('skip-btn');
-            const timer = document.getElementById('ad-timer');
             ov.style.display = 'flex';
-            let c = 10;
-            btn.disabled = true;
+            let c = 8;
             const t = setInterval(() => {
-                c--; timer.innerText = c;
+                c--; btn.innerText = `دخول البث (${c})`;
                 if(c<=0) {
-                    clearInterval(t); btn.disabled = false; btn.innerText = "دخول البث المباشر";
-                    btn.onclick = () => { ov.style.display = 'none'; startStream(idx); };
+                    clearInterval(t); btn.disabled = false; btn.innerText = "مشاهدة الآن";
+                    btn.onclick = () => { ov.style.display = 'none'; openPlayer(idx); };
                 }
             }, 1000);
         }
 
-        function startStream(idx) {
+        function openPlayer(idx) {
             const m = matches[idx];
             document.getElementById('match-grid').style.display = 'none';
-            document.getElementById('player-wrapper').style.display = 'block';
-            document.getElementById('match-title-ui').innerText = m.t1 + " ⚔️ " + m.t2;
+            document.getElementById('player-section').style.display = 'block';
+            document.getElementById('match-title-ui').innerText = `${m.t1} VS ${m.t2}`;
             
-            const links = m.links.filter(l => l && l.length > 5);
-            const srvBar = document.getElementById('servers-bar');
-            srvBar.innerHTML = links.map((l, i) => `
-                <button class="srv-btn ${i===0?'active':''}" onclick="loadSource('${l}', this)">سيرفر ${i+1}</button>
+            const validLinks = m.links.filter(l => l && l.length > 5);
+            document.getElementById('servers-bar').innerHTML = validLinks.map((l, i) => `
+                <button class="srv-node ${i===0?'active':''}" onclick="startStream('${l}', this)">سيرفر ${i+1}</button>
             `).join('');
 
-            loadSource(links[0]);
+            startStream(validLinks[0]);
         }
 
-        function loadSource(url, btn) {
+        function startStream(url, btn) {
             if(btn) {
-                document.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.srv-node').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
             
             const root = document.getElementById('video-root');
-            root.innerHTML = ''; 
+            root.innerHTML = '';
+            if(hls) hls.destroy();
 
-            // التحقق إذا كان الرابط فيديو مباشر (m3u8, mp4, ts, etc)
-            const isDirectVideo = url.toLowerCase().match(/\.(m3u8|mp4|ts|mkv|avi)/) || url.includes('http');
+            // تنظيف الرابط إذا كان به مسافات
+            url = url.trim();
 
             if (url.includes('m3u8') || url.includes('.ts')) {
                 const vid = document.createElement('video');
-                vid.id = 'plyr-player';
-                vid.controls = true;
-                vid.playsinline = true;
+                vid.id = 'player';
+                vid.setAttribute('playsinline', 'true');
+                vid.setAttribute('controls', 'true');
+                vid.setAttribute('autoplay', 'true');
                 root.appendChild(vid);
 
-                // تفعيل مشغل Plyr مع الأزرار
-                plyrPlayer = new Plyr(vid, {
-                    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
-                    settings: ['quality', 'speed']
-                });
-
+                // استخدام HLS.js مع إعدادات متطورة
                 if (Hls.isSupported()) {
-                    const hls = new Hls();
+                    hls = new Hls({
+                        debug: false,
+                        enableWorker: true,
+                        lowLatencyMode: true
+                    });
                     hls.loadSource(url);
                     hls.attachMedia(vid);
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play());
-                } else { vid.src = url; vid.play(); }
-            } else {
-                // إذا كان رابط iframe أو رابط موقع
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play().catch(e => console.log("Auto-play blocked")));
+                } 
+                else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+                    vid.src = url;
+                }
+                
+                // تفعيل Plyr لتحسين الشكل
+                new Plyr(vid, { controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] });
+            } 
+            else {
                 const ifr = document.createElement('iframe');
                 ifr.src = url;
                 ifr.allowFullscreen = true;
@@ -211,16 +285,14 @@
             }
         }
 
-        function closePlayer() {
-            if(plyrPlayer) plyrPlayer.destroy();
-            document.getElementById('player-wrapper').style.display = 'none';
+        function exitPlayer() {
+            if(hls) hls.destroy();
+            document.getElementById('player-section').style.display = 'none';
             document.getElementById('match-grid').style.display = 'grid';
             document.getElementById('video-root').innerHTML = '';
         }
 
-        window.onload = init;
+        window.onload = fetchMatches;
     </script>
-
-    <style>@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }</style>
 </body>
 </html>
