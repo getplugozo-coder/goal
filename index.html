@@ -34,6 +34,7 @@
         .ad-box {
             background: #1c2128; padding: 25px; border-radius: 20px;
             border: 1px solid var(--primary); max-width: 450px; width: 100%;
+            position: relative;
         }
         .timer-num { color: var(--primary); font-weight: 900; font-size: 24px; }
         .close-ad-btn {
@@ -78,17 +79,10 @@
     <div id="ad-overlay">
         <div class="ad-box">
             <div id="timer-label">سيفتح البث بعد <span class="timer-num" id="seconds">10</span> ثوانٍ</div>
-            <div id="ad-content" style="margin-top: 20px; min-height: 200px;">
-                <script>
-                (function(qqrkx){
-                var d = document, s = d.createElement('script'), l = d.scripts[d.scripts.length - 1];
-                s.settings = qqrkx || {};
-                s.src = "\/\/pastchannel.com\/b.XXV\/sHd\/GNln0EYSWIcU\/Resmr9\/utZZUul\/k\/P\/TlYx3mO\/DCAS2FNtDME\/t_NmjFcD4sM\/DrYT0HNdQQ";
-                s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
-                l.parentNode.insertBefore(s, l);
-                })({})
-                </script>
-            </div>
+            
+            <div id="ad-content-wrapper" style="margin-top: 20px; min-height: 200px; position: relative; z-index: 10000;">
+                </div>
+
             <button class="close-ad-btn" id="close-ad" onclick="startStreamNow()">مشاهدة المباراة الآن</button>
         </div>
     </div>
@@ -170,14 +164,38 @@
             }).join('');
         }
 
+        // وظيفة لحقن الإعلان ديناميكياً
+        function injectAd() {
+            const wrapper = document.getElementById('ad-content-wrapper');
+            wrapper.innerHTML = ''; // تنظيف المحتوى السابق
+            
+            const script = document.createElement('script');
+            script.text = `
+                (function(qqrkx){
+                var d = document, s = d.createElement('script'), l = d.scripts[d.scripts.length - 1];
+                s.settings = qqrkx || {};
+                s.src = "\\/\\/pastchannel.com\\/b.XXV\\/sHd\\/GNln0EYSWIcU\\/Resmr9\\/utZZUul\\/k\\/P\\/TlYx3mO\\/DCAS2FNtDME\\/t_NmjFcD4sM\\/DrYT0HNdQQ";
+                s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+                l.parentNode.insertBefore(s, l);
+                })({})
+            `;
+            wrapper.appendChild(script);
+        }
+
         function openAd(idx) {
             activeIndex = idx;
-            document.getElementById('ad-overlay').style.display = 'flex';
-            let sec = 10;
+            const overlay = document.getElementById('ad-overlay');
             const timerElement = document.getElementById('seconds');
             const closeBtn = document.getElementById('close-ad');
+            const label = document.getElementById('timer-label');
+
+            overlay.style.display = 'flex';
+            injectAd(); // إظهار الإعلان
+
+            let sec = 10;
             timerElement.innerText = sec;
             closeBtn.style.display = 'none';
+            label.style.display = 'block';
 
             const t = setInterval(() => {
                 sec--;
@@ -185,14 +203,19 @@
                 if(sec <= 0) {
                     clearInterval(t);
                     closeBtn.style.display = 'block';
+                    label.style.display = 'none';
                 }
             }, 1000);
         }
 
         function startStreamNow() {
+            // أهم خطوة: تنظيف الإعلان تماماً وإخفاء الـ Overlay
+            document.getElementById('ad-content-wrapper').innerHTML = ''; 
             document.getElementById('ad-overlay').style.display = 'none';
+            
             document.getElementById('match-grid').style.display = 'none';
             document.getElementById('player-section').style.display = 'block';
+            
             const m = matches[activeIndex];
             document.getElementById('match-label').innerText = m.t1 + " vs " + m.t2;
             
@@ -212,7 +235,6 @@
             const root = document.getElementById('video-root');
             const lowerUrl = url.toLowerCase();
             
-            // حل مشكلة تشغيل الروابط المحمية m3u8 عبر مشغل ويب وسيط
             if(lowerUrl.includes('.m3u8')) {
                 root.innerHTML = `<iframe src="https://m3u8player.org/?url=${encodeURIComponent(url)}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
             } else {
