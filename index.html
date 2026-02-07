@@ -1,52 +1,93 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>GoalPro</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<style>
-body { background:#111; color:#fff; font-family:Arial; text-align:center; }
-button { margin:5px; padding:10px 20px; cursor:pointer; }
-video { width:90%; max-width:800px; margin-top:20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بث مباشر للمباريات</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: white; font-family: sans-serif; }
+        .match-card { background: #1e293b; transition: 0.3s; border: 1px solid #334155; }
+        .match-card:hover { transform: translateY(-5px); border-color: #38bdf8; }
+    </style>
 </head>
-<body>
-<h1>GoalPro - المباريات</h1>
-<div id="match-list">Loading...</div>
-<video id="player" controls autoplay></video>
+<body class="p-4 md:p-10">
 
-<script>
-const sheetURL = "YOUR_SHEET_JSON_URL";
-const proxyURL = "https://YOUR-INFHOST.infinityfreeapp.com/proxy.php";
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-sky-400">⚽ جدول مباريات اليوم</h1>
 
-fetch(sheetURL)
-.then(r => r.json())
-.then(data => {
-  const listDiv = document.getElementById("match-list");
-  listDiv.innerHTML = "";
-  data.forEach(m => {
-    const btn = document.createElement("button");
-    btn.innerText = `${m.team1} vs ${m.team2} - ${m.time}`;
-    btn.onclick = () => play([m.channel1,m.channel2,m.channel3]);
-    listDiv.appendChild(btn);
-  });
-});
+        <div id="player-container" class="hidden mb-10 bg-black rounded-xl overflow-hidden shadow-2xl border-2 border-sky-600">
+            <video id="video" class="w-full aspect-video" controls></video>
+            <div class="p-4 bg-slate-800 flex justify-between items-center">
+                <span id="now-playing" class="font-bold">جاري التشغيل...</span>
+                <button onclick="closePlayer()" class="bg-red-500 hover:bg-red-600 px-4 py-1 rounded text-white text-sm">إغلاق ✕</button>
+            </div>
+        </div>
 
-function play(channels){
-  const video = document.getElementById("player");
-  const url = proxyURL + "?channels=" + channels.join(",");
-  if(Hls.isSupported()){
-    if(video.hls) video.hls.destroy();
-    const hls = new Hls();
-    video.hls = hls;
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED,()=> video.play());
-  } else {
-    video.src = url;
-    video.play();
-  }
-}
-</script>
+        <div id="matches-list" class="grid gap-4">
+            <div class="text-center text-slate-400">جاري جلب المباريات من الجدول...</div>
+        </div>
+    </div>
+
+    <script>
+        // الرابط ديالك من SheetBest
+        const API_URL = 'https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89';
+
+        async function loadMatches() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                const list = document.getElementById('matches-list');
+                list.innerHTML = '';
+
+                data.forEach(m => {
+                    list.innerHTML += `
+                        <div class="match-card p-5 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="text-center md:text-right">
+                                <h3 class="font-bold text-xl">${m.match}</h3>
+                                <p class="text-sky-400 text-sm">${m.league} | ⏰ ${m.time}</p>
+                            </div>
+                            <button onclick="playStream('${m.streams}', '${m.match}')" 
+                                    class="bg-sky-600 hover:bg-sky-500 px-8 py-3 rounded-lg font-bold w-full md:w-auto transition shadow-lg">
+                                شاهد الآن
+                            </button>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                document.getElementById('matches-list').innerHTML = "خطأ في الاتصال بالجدول.";
+            }
+        }
+
+        function playStream(ids, name) {
+            const video = document.getElementById('video');
+            const container = document.getElementById('player-container');
+            const proxyUrl = `proxy.php?channels=${ids}`;
+
+            container.classList.remove('hidden');
+            document.getElementById('now-playing').innerText = name;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(proxyUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = proxyUrl;
+                video.addEventListener('loadedmetadata', () => video.play());
+            }
+        }
+
+        function closePlayer() {
+            const video = document.getElementById('video');
+            document.getElementById('player-container').classList.add('hidden');
+            video.pause();
+            video.src = "";
+        }
+
+        loadMatches();
+    </script>
 </body>
 </html>
