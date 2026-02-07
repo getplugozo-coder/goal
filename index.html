@@ -3,11 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GoalLive PRO | البث المباشر</title>
     
+    <title>GoalLive PRO | البث المباشر للمباريات - Live Football Streaming</title>
+    <meta name="description" content="شاهد البث المباشر للمباريات اليوم بجودة عالية وبدون تقطيع. GoalLive PRO يقدم تغطية حصرية للدوري المغربي، الإسباني، والإنجليزي. Watch live football matches in HD.">
+    <meta name="keywords" content="كورة لايف, بث مباشر, مباريات اليوم, GoalLive PRO, koora live, live streaming, football live, الدوري المغربي مباشر">
+    <meta name="author" content="GoalLive PRO">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://t.me/goallivepro">
+    <meta property="og:title" content="GoalLive PRO | شاهد مباريات اليوم بث مباشر">
+    <meta property="og:description" content="أفضل منصة لمشاهدة المباريات بجودة عالية وبدون إعلانات مزعجة. تابع فريقك المفضل الآن.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/33/33736.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="GoalLive PRO | Live Football Streaming">
+    <meta property="twitter:description" content="Watch your favorite football matches live in HD for free.">
+
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
     <style>
         :root { --primary: #ff6600; --bg: #0b0e14; --card: #161b22; --success: #2ea043; --danger: #da3633; }
@@ -19,58 +36,56 @@
         .logo { font-size: 22px; font-weight: 900; color: white; }
         .logo span { color: var(--primary); }
 
-        .tg-link { background: #0088cc; color: white; display: block; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none; margin: 10px 0; font-weight: bold; }
-
-        /* --- الحل النهائي للإعلان --- */
+        /* Overlay Ad */
         #ad-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.98); z-index: 20000;
+            background: rgba(0, 0, 0, 0.98); z-index: 9999;
             display: none; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
         }
         .ad-box {
-            background: #1c2128; border: 2px solid var(--primary); border-radius: 15px;
-            width: 320px; padding: 10px; text-align: center; position: relative;
-        }
-        /* إطار الإعلان المسجون */
-        #ad-sandbox {
-            width: 300px; height: 250px; margin: 10px auto;
-            background: #000; border: none; overflow: hidden;
-            display: block;
+            background: #1c2128; padding: 25px; border-radius: 20px;
+            border: 1px solid var(--primary); max-width: 450px; width: 100%;
         }
         .timer-num { color: var(--primary); font-weight: 900; font-size: 24px; }
         .close-ad-btn {
-            background: var(--primary); color: #000; border: none; padding: 15px;
-            border-radius: 10px; font-weight: 900; cursor: pointer; display: none; 
-            width: 100%; font-size: 16px; margin-top: 5px;
+            margin-top: 20px; background: var(--primary); color: #000;
+            border: none; padding: 12px 30px; border-radius: 10px;
+            font-weight: 900; cursor: pointer; display: none; width: 100%;
         }
 
-        /* Match Grid & Logos */
-        .match-grid { display: grid; gap: 12px; }
-        .match-card { background: var(--card); border-radius: 12px; padding: 12px; border: 1px solid #30363d; cursor: pointer; }
-        .team { flex: 1; text-align: center; }
-        .team img { 
-            width: 45px !important; height: 45px !important; 
-            object-fit: contain; background: white; border-radius: 6px; padding: 2px;
-        }
-        .info-center { text-align: center; flex: 1.2; }
-        .match-time { font-size: 18px; font-weight: 900; display: block; direction: ltr; }
-        .match-status { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
-        .status-live { background: var(--success); animation: blink 1s infinite; }
-        .status-soon { background: #333; color: #ccc; }
-
-        /* Player Area */
-        #player-section { display: none; margin-top: 10px; }
-        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #30363d; position: relative; }
-        video, iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; }
-        .player-footer { background: var(--card); padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-radius: 8px; }
-        .btn-close { background: var(--danger); color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .tg-link { background: #0088cc; color: white; display: block; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none; margin: 10px 0; font-weight: bold; }
         
-        .srv-bar { display: flex; gap: 8px; overflow-x: auto; padding: 8px 0; }
-        .srv-btn { background: #21262d; color: #8b949e; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 13px; }
-        .srv-btn.active { background: var(--primary); color: #000; font-weight: bold; }
+        .match-grid { display: grid; gap: 15px; padding: 10px 0; }
+        .match-card { background: var(--card); border-radius: 15px; padding: 15px; border: 1px solid #30363d; cursor: pointer; }
+        .league-name { font-size: 11px; text-align: center; color: #8b949e; margin-bottom: 10px; font-weight: bold; border-bottom: 1px solid #21262d; padding-bottom: 5px; }
+        
+        .match-content { display: flex; align-items: center; justify-content: space-between; }
+        .team { flex: 1; text-align: center; }
+        .team img { width: 50px; height: 50px; object-fit: contain; border-radius: 8px; background: #fff; padding: 3px; margin-bottom: 5px; }
+        .team p { font-size: 13px; font-weight: bold; }
 
+        .info-center { flex: 1.2; text-align: center; }
+        .match-status { font-size: 11px; padding: 3px 8px; border-radius: 5px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+        .status-soon { background: #21262d; color: #8b949e; }
+        .status-live { background: var(--success); color: white; animation: blink 1s infinite; }
+        .status-ended { background: var(--danger); color: white; }
+        
+        .match-time { font-size: 18px; font-weight: 900; display: block; margin: 2px 0; direction: ltr; letter-spacing: 1px; }
+        .countdown { font-size: 11px; color: var(--primary); font-weight: bold; display: block; direction: ltr; }
+
+        #player-section { display: none; background: #000; border-radius: 15px; overflow: hidden; margin-top: 10px; border: 1px solid #30363d; }
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; }
+        video, iframe { width: 100%; height: 100%; border: none; }
+        .player-footer { background: #161b22; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-close { background: #ff4444; color: white; border: none; padding: 7px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .srv-bar { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: #0d1117; border-top: 1px solid #30363d; }
+        .srv-btn { background: #21262d; color: #8b949e; border: none; padding: 8px 16px; border-radius: 8px; white-space: nowrap; cursor: pointer; font-size: 13px; }
+        .srv-btn.active { background: var(--primary); color: #000; font-weight: 900; }
+        
         @keyframes blink { 50% { opacity: 0.5; } }
-        .loader { width: 40px; height: 40px; border: 4px solid #222; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 40px auto; }
+        .loader { width: 40px; height: 40px; border: 4px solid #222; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -78,9 +93,19 @@
 
     <div id="ad-overlay">
         <div class="ad-box">
-            <div id="timer-label" style="font-size: 14px;">يتم تجهيز المشغل: <span class="timer-num" id="seconds">10</span></div>
-            <iframe id="ad-sandbox"></iframe>
-            <button class="close-ad-btn" id="close-ad" onclick="startStreamNow()">مشاهدة المباراة الآن</button>
+            <div id="timer-label" style="margin-bottom: 15px;">انتظر <span class="timer-num" id="seconds">10</span> ثوانٍ لفتح البث</div>
+            <div id="ad-content" style="min-height: 200px; display: flex; align-items: center; justify-content: center; background: #000; border-radius: 10px;">
+                <script>
+                (function(rhlive){
+                var d = document, s = d.createElement('script'), l = d.scripts[d.scripts.length - 1];
+                s.settings = rhlive || {};
+                s.src = "\/\/pastchannel.com\/bkXEV\/sHd.Glls0MYwWDco\/xeymi9Zu_ZmUZlykbPfToYB3kNBzZkQ3PNCDZUZtdNPjAcq3hODTmcu0aO\/QH";
+                s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+                l.parentNode.insertBefore(s, l);
+                })({})
+                </script>
+            </div>
+            <button class="close-ad-btn" id="close-ad" onclick="startActualStream()">مشاهدة المباراة الآن</button>
         </div>
     </div>
 
@@ -88,132 +113,139 @@
         <header><div class="logo">GOAL<span>LIVE</span> PRO</div></header>
 
         <a href="https://t.me/goallivepro" target="_blank" class="tg-link">
-            <i class="fab fa-telegram"></i> تابعنا على تليجرام لروابط بديلة
+            <i class="fab fa-telegram"></i> تابعنا على تليجرام لروابط حصرية
         </a>
 
         <div id="player-section">
             <div class="video-wrapper" id="video-root"></div>
-            <div id="srv-bar" class="srv-bar"></div>
             <div class="player-footer">
-                <span id="match-label" style="font-weight: bold; color: var(--primary);"></span>
-                <button class="btn-close" onclick="closePlayer()">إغلاق</button>
+                <span id="match-label" style="font-size: 14px; font-weight: bold; color: var(--primary);"></span>
+                <button class="btn-close" onclick="stopPlayer()">إغلاق البث</button>
             </div>
+            <div id="srv-bar" class="srv-bar"></div>
         </div>
 
-        <div id="match-grid" class="match-grid"><div class="loader"></div></div>
+        <div id="match-grid" class="match-grid">
+            <div class="loader"></div>
+        </div>
     </div>
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv';
-        let matches = [], hls = null, activeIndex = null;
+        let matches = [];
+        let hlsPlayer = null;
+        let selectedMatchIndex = null;
+        const DEFAULT_LOGO = 'https://cdn-icons-png.flaticon.com/512/33/33736.png';
 
-        async function init() {
+        async function loadMatches() {
             try {
                 const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(CSV_URL));
-                const text = await res.text();
-                const lines = text.split('\n').slice(1);
+                const data = await res.text();
+                const lines = data.split('\n').slice(1);
                 matches = lines.map(line => {
                     const c = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(x => x.replace(/^"|"$/g, '').trim());
-                    return { t1: c[0], l1: c[1], t2: c[2], l2: c[3], time: c[4], links: [c[5], c[6]] };
+                    return { t1: c[0], l1: c[1] || DEFAULT_LOGO, t2: c[2], l2: c[3] || DEFAULT_LOGO, time: c[4], links: [c[5], c[6]], league: c[7] || "مباراة" };
                 }).filter(m => m.t1);
-                render();
-            } catch (e) { console.error("CSV Load Error"); }
+                renderMatches();
+            } catch (e) { console.error("CSV Error"); }
         }
 
-        function render() {
+        function getStatus(matchDateStr) {
+            const matchDate = new Date(matchDateStr);
+            const now = new Date();
+            const diffMs = matchDate - now;
+            const diffMin = diffMs / (1000 * 60);
+            if (diffMs > 0) return { label: "قريباً", class: "status-soon", countdown: true };
+            else if (diffMin > -130) return { label: "جارية الآن", class: "status-live", countdown: false };
+            else return { label: "انتهت", class: "status-ended", countdown: false };
+        }
+
+        function renderMatches() {
             const grid = document.getElementById('match-grid');
+            if(!grid) return;
             grid.innerHTML = matches.map((m, i) => {
-                const matchDate = new Date(m.time);
-                const diffMs = matchDate - new Date();
-                const timeStr = matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                let status = diffMs <= 0 && diffMs > -7200000 ? "مباشر" : "قريباً";
+                const status = getStatus(m.time);
+                const timeObj = new Date(m.time);
+                const timeStr = timeObj.toLocaleTimeString('en-GB', { 
+                    hour: '2-digit', minute: '2-digit', hour12: false 
+                });
+
                 return `
-                <div class="match-card" onclick="openAd(${i})">
-                    <div style="display:flex; align-items:center;">
-                        <div class="team"><img src="${m.l1}"><p>${m.t1}</p></div>
-                        <div class="info-center">
-                            <span class="match-status ${status==='مباشر'?'status-live':'status-soon'}">${status}</span>
-                            <span class="match-time">${timeStr}</span>
+                <div class="match-card" onclick="triggerOverlay(${i})">
+                    <div class="league-name">${m.league}</div>
+                    <div class="match-content">
+                        <div class="team">
+                            <img src="${m.l1.replace('http://', 'https://')}" onerror="this.src='${DEFAULT_LOGO}'">
+                            <p>${m.t1}</p>
                         </div>
-                        <div class="team"><img src="${m.l2}"><p>${m.t2}</p></div>
+                        <div class="info-center">
+                            <span class="match-status ${status.class}">${status.label}</span>
+                            <span class="match-time">${timeStr}</span>
+                            ${status.countdown ? `<span class="countdown">Starts in: ${Math.floor((new Date(m.time)-new Date())/3600000)}h ${Math.floor(((new Date(m.time)-new Date())%3600000)/60000)}m</span>` : ''}
+                        </div>
+                        <div class="team">
+                            <img src="${m.l2.replace('http://', 'https://')}" onerror="this.src='${DEFAULT_LOGO}'">
+                            <p>${m.t2}</p>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function openAd(idx) {
-            activeIndex = idx;
-            const overlay = document.getElementById('ad-overlay');
-            overlay.style.display = 'flex';
-            
-            // حقن الإعلان داخل iframe نظيف
-            const sandbox = document.getElementById('ad-sandbox');
-            const adHtml = `
-                <body style="margin:0; padding:0; display:flex; justify-content:center; align-items:center; background:#000;">
-                <script src="//pastchannel.com/b.XXV/sHd/GNln0EYSWIcU/Resmr9/utZZUul/k/P/TlYx3mO/DCAS2FNtDME/t_NmjFcD4sM/DrYT0HNdQQ" async><\/script>
-                </body>
-            `;
-            sandbox.contentWindow.document.open();
-            sandbox.contentWindow.document.write(adHtml);
-            sandbox.contentWindow.document.close();
-
-            let sec = 10;
-            const t = setInterval(() => {
-                sec--;
-                document.getElementById('seconds').innerText = sec;
-                if(sec <= 0) {
-                    clearInterval(t);
+        function triggerOverlay(idx) {
+            selectedMatchIndex = idx;
+            document.getElementById('ad-overlay').style.display = 'flex';
+            let timeLeft = 10;
+            const timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('seconds').innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(timer);
                     document.getElementById('close-ad').style.display = 'block';
                     document.getElementById('timer-label').style.display = 'none';
                 }
             }, 1000);
         }
 
-        function startStreamNow() {
+        function startActualStream() {
             document.getElementById('ad-overlay').style.display = 'none';
-            document.getElementById('ad-sandbox').src = "about:blank"; // تفريغ الإعلان
+            const m = matches[selectedMatchIndex];
             document.getElementById('match-grid').style.display = 'none';
             document.getElementById('player-section').style.display = 'block';
-            
-            const m = matches[activeIndex];
-            document.getElementById('match-label').innerText = `${m.t1} vs ${m.t2}`;
+            document.getElementById('match-label').innerText = m.t1 + " vs " + m.t2;
             const links = m.links.filter(l => l && l.length > 5);
-            document.getElementById('srv-bar').innerHTML = links.map((l, i) => `
-                <button class="srv-btn ${i===0?'active':''}" onclick="play('${l.trim()}', this)">Server ${i+1}</button>
-            `).join('');
-            play(links[0]);
+            document.getElementById('srv-bar').innerHTML = links.map((l, i) => `<button class="srv-btn ${i===0?'active':''}" onclick="bootStream('${l.trim()}', this)">Server ${i+1}</button>`).join('');
+            bootStream(links[0].trim());
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function play(url, btn) {
+        function bootStream(url, btn) {
             if(btn) { document.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
             const root = document.getElementById('video-root');
-            root.innerHTML = ''; if(hls) hls.destroy();
-
-            if(url.toLowerCase().includes('.m3u8')) {
+            root.innerHTML = ''; 
+            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
+            if (url.includes('.m3u8')) {
                 const video = document.createElement('video');
-                video.controls = true; video.autoplay = true; video.muted = true;
-                video.style.width="100%"; video.setAttribute('playsinline', '');
+                video.id = 'player'; video.controls = true; video.playsinline = true; video.autoplay = true;
                 root.appendChild(video);
-                
                 if (Hls.isSupported()) {
-                    hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
-                    hls.on(Hls.Events.ERROR, (e, d) => {
-                        if(d.fatal) root.innerHTML = `<iframe src="https://player.clappr.io/?src=${encodeURIComponent(url)}" allowfullscreen></iframe>`;
-                    });
+                    hlsPlayer = new Hls({ xhrSetup: xhr => xhr.withCredentials = false });
+                    hlsPlayer.loadSource(url); hlsPlayer.attachMedia(video);
+                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+                    hlsPlayer.on(Hls.Events.ERROR, (e, d) => { if(d.fatal) root.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`; });
                 } else { video.src = url; video.play(); }
-            } else {
-                root.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay"></iframe>`;
-            }
+                new Plyr(video, { controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] });
+            } else { root.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`; }
         }
 
-        function closePlayer() {
-            if(hls) hls.destroy();
+        function stopPlayer() {
+            if(hlsPlayer) hlsPlayer.destroy();
             document.getElementById('player-section').style.display = 'none';
             document.getElementById('match-grid').style.display = 'grid';
             document.getElementById('video-root').innerHTML = '';
         }
 
-        window.onload = init;
+        window.onload = loadMatches;
     </script>
 </body>
 </html>
