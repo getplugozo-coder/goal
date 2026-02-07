@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GoalLive PRO | البث المباشر</title>
+    <title>GoalLive PRO | البث المباشر للمباريات</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
     <style>
@@ -14,13 +15,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         body { background: var(--bg); color: white; line-height: 1.4; padding-bottom: 30px; }
         .container { width: 95%; max-width: 800px; margin: 0 auto; }
+        
         header { padding: 15px 0; text-align: center; border-bottom: 1px solid #30363d; margin-bottom: 10px; }
         .logo { font-size: 22px; font-weight: 900; color: white; }
         .logo span { color: var(--primary); }
 
-        .tg-link { background: #0088cc; color: white; display: block; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none; margin: 10px 0; font-weight: bold; }
+        .tg-link { background: #0088cc; color: white; display: block; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none; margin: 10px 0; font-weight: bold; font-size: 14px; }
 
-        /* Overlay Ad Fix */
+        /* Overlay Ad */
         #ad-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.98); z-index: 9999;
@@ -28,38 +30,41 @@
         }
         .ad-box {
             background: #1c2128; padding: 20px; border-radius: 20px;
-            border: 1px solid var(--primary); width: 90%; max-width: 350px; text-align: center;
+            border: 1px solid var(--primary); width: 90%; max-width: 360px; text-align: center;
         }
-        #ad-content-wrapper {
-            width: 300px; height: 250px; margin: 15px auto;
-            background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        #ad-wrapper {
+            width: 300px; height: 250px; margin: 15px auto; background: #000;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
         .timer-num { color: var(--primary); font-weight: 900; font-size: 24px; }
         .close-ad-btn {
             background: var(--primary); color: #000; border: none; padding: 12px;
-            border-radius: 10px; font-weight: 900; cursor: pointer; display: none; width: 100%; margin-top: 10px;
+            border-radius: 10px; font-weight: 900; cursor: pointer; display: none; width: 100%;
         }
 
-        /* Match Cards */
+        /* Match Grid */
         .match-grid { display: grid; gap: 15px; padding: 10px 0; }
-        .match-card { background: var(--card); border-radius: 15px; padding: 15px; border: 1px solid #30363d; cursor: pointer; }
+        .match-card { background: var(--card); border-radius: 15px; padding: 15px; border: 1px solid #30363d; cursor: pointer; transition: 0.3s; }
+        .match-card:hover { border-color: var(--primary); }
         .match-content { display: flex; align-items: center; justify-content: space-between; }
         .team img { width: 45px; height: 45px; object-fit: contain; background: white; border-radius: 5px; padding: 2px; }
         .info-center { text-align: center; flex: 1.2; }
         .match-time { font-size: 18px; font-weight: 900; display: block; direction: ltr; }
         .match-status { font-size: 11px; padding: 3px 8px; border-radius: 5px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
-        .status-live { background: var(--success); animation: blink 1s infinite; }
+        .status-live { background: var(--success); color: white; animation: blink 1s infinite; }
         .status-soon { background: #21262d; color: #8b949e; }
-        .match-countdown { font-size: 11px; color: var(--primary); font-weight: bold; display: block; margin-top: 4px; }
+        .match-countdown { font-size: 11px; color: var(--primary); font-weight: bold; display: block; margin-top: 4px; direction: ltr; }
 
-        /* Player */
+        /* Player Section */
         #player-section { display: none; margin-top: 10px; }
-        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 15px; overflow: hidden; border: 1px solid #30363d; }
-        video, iframe { width: 100%; height: 100%; border: none; }
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 15px; overflow: hidden; border: 1px solid #30363d; position: relative; }
+        video, iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; }
+        
         .player-footer { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-radius: 12px; }
         .btn-close { background: var(--danger); color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
         .srv-bar { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; }
-        .srv-btn { background: #21262d; color: #8b949e; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+        .srv-btn { background: #21262d; color: #8b949e; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-size: 13px; }
         .srv-btn.active { background: var(--primary); color: #000; font-weight: 900; }
 
         @keyframes blink { 50% { opacity: 0.5; } }
@@ -71,23 +76,26 @@
 
     <div id="ad-overlay">
         <div class="ad-box">
-            <div id="timer-label">انتظر <span class="timer-num" id="seconds">10</span> ثوانٍ</div>
-            <div id="ad-content-wrapper">
+            <div id="timer-label">جاري تجهيز البث.. <span class="timer-num" id="seconds">10</span></div>
+            <div id="ad-wrapper">
                 </div>
-            <button class="close-ad-btn" id="close-ad" onclick="startStreamNow()">مشاهدة المباراة الآن</button>
+            <button class="close-ad-btn" id="close-ad" onclick="startStreamNow()">فتح المشغل الآن</button>
         </div>
     </div>
 
     <div class="container">
         <header><div class="logo">GOAL<span>LIVE</span> PRO</div></header>
-        <a href="https://t.me/goallivepro" target="_blank" class="tg-link"><i class="fab fa-telegram"></i> تابعنا على تليجرام</a>
+
+        <a href="https://t.me/goallivepro" target="_blank" class="tg-link">
+            <i class="fab fa-telegram"></i> تابعنا على تليجرام لروابط حصرية
+        </a>
 
         <div id="player-section">
             <div class="video-wrapper" id="video-root"></div>
             <div id="srv-bar" class="srv-bar"></div>
             <div class="player-footer">
                 <span id="match-label" style="font-weight: bold; color: var(--primary);"></span>
-                <button class="btn-close" onclick="closePlayer()">إغلاق</button>
+                <button class="btn-close" onclick="closePlayer()">إغلاق البث</button>
             </div>
         </div>
 
@@ -97,7 +105,7 @@
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv';
         let matches = [];
-        let hls = null;
+        let hlsPlayer = null;
         let activeIndex = null;
 
         async function init() {
@@ -110,8 +118,7 @@
                     return { t1: c[0], l1: c[1], t2: c[2], l2: c[3], time: c[4], links: [c[5], c[6]], league: c[7] };
                 }).filter(m => m.t1);
                 render();
-                setInterval(render, 30000);
-            } catch (e) { console.error("CSV Load Error"); }
+            } catch (e) { console.error("CSV Error"); }
         }
 
         function render() {
@@ -121,9 +128,10 @@
                 const matchDate = new Date(m.time);
                 const diffMs = matchDate - new Date();
                 const timeStr = matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-                let status = diffMs > 0 ? "قريباً" : (diffMs > -7200000 ? "مباشر" : "انتهت");
-                let countdown = "";
-                if(diffMs > 0) {
+                let statusLabel = "قريباً", statusClass = "status-soon", countdown = "";
+                
+                if (diffMs <= 0 && diffMs > -7200000) { statusLabel = "مباشر"; statusClass = "status-live"; }
+                else if (diffMs > 0) {
                     const h = Math.floor(diffMs/3600000);
                     const min = Math.floor((diffMs%3600000)/60000);
                     countdown = `Starts in: ${h}h ${min}m`;
@@ -133,7 +141,7 @@
                     <div class="match-content">
                         <div class="team"><img src="${m.l1}"><p>${m.t1}</p></div>
                         <div class="info-center">
-                            <span class="match-status ${status==='مباشر'?'status-live':'status-soon'}">${status}</span>
+                            <span class="match-status ${statusClass}">${statusLabel}</span>
                             <span class="match-time">${timeStr}</span>
                             ${countdown ? `<span class="match-countdown">${countdown}</span>` : ''}
                         </div>
@@ -146,12 +154,14 @@
         function openAd(idx) {
             activeIndex = idx;
             document.getElementById('ad-overlay').style.display = 'flex';
-            const wrapper = document.getElementById('ad-content-wrapper');
+            const wrapper = document.getElementById('ad-wrapper');
             wrapper.innerHTML = '';
-            const sc = document.createElement('script');
-            sc.src = "//pastchannel.com/b.XXV/sHd/GNln0EYSWIcU/Resmr9/utZZUul/k/P/TlYx3mO/DCAS2FNtDME/t_NmjFcD4sM/DrYT0HNdQQ";
-            sc.async = true;
-            wrapper.appendChild(sc);
+            
+            // حقن الإعلان
+            const s = document.createElement('script');
+            s.src = "//pastchannel.com/b.XXV/sHd/GNln0EYSWIcU/Resmr9/utZZUul/k/P/TlYx3mO/DCAS2FNtDME/t_NmjFcD4sM/DrYT0HNdQQ";
+            s.async = true;
+            wrapper.appendChild(s);
 
             let sec = 10;
             const t = setInterval(() => {
@@ -166,40 +176,57 @@
         }
 
         function startStreamNow() {
-            document.getElementById('ad-content-wrapper').innerHTML = '';
             document.getElementById('ad-overlay').style.display = 'none';
+            document.getElementById('ad-wrapper').innerHTML = '';
             document.getElementById('match-grid').style.display = 'none';
             document.getElementById('player-section').style.display = 'block';
+            
             const m = matches[activeIndex];
-            document.getElementById('match-label').innerText = m.t1 + " vs " + m.t2;
-            const validLinks = m.links.filter(l => l && l.length > 5);
-            document.getElementById('srv-bar').innerHTML = validLinks.map((l, i) => `<button class="srv-btn ${i===0?'active':''}" onclick="play('${l.trim()}', this)">Server ${i+1}</button>`).join('');
-            play(validLinks[0]);
+            document.getElementById('match-label').innerText = `${m.t1} vs ${m.t2}`;
+            const links = m.links.filter(l => l && l.length > 5);
+            document.getElementById('srv-bar').innerHTML = links.map((l, i) => `
+                <button class="srv-btn ${i===0?'active':''}" onclick="play('${l.trim()}', this)">Server ${i+1}</button>
+            `).join('');
+            play(links[0]);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function play(url, btn) {
-            if(btn) { document.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+            if(btn) {
+                document.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
             const root = document.getElementById('video-root');
-            root.innerHTML = ''; if(hls) hls.destroy();
+            root.innerHTML = '';
+            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
 
-            if(url.includes('.m3u8')) {
-                // جرب المشغل المباشر أولا
+            const lowUrl = url.toLowerCase();
+            
+            // إذا كان الرابط m3u8
+            if(lowUrl.includes('.m3u8')) {
                 const video = document.createElement('video');
-                video.controls = true; video.autoplay = true; video.style.width="100%";
+                video.controls = true; video.autoplay = true; video.playsinline = true;
                 root.appendChild(video);
+
                 if (Hls.isSupported()) {
-                    hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
-                    hls.on(Hls.Events.ERROR, (e, data) => {
-                        if(data.fatal) root.innerHTML = `<iframe src="https://m3u8player.org/?url=${encodeURIComponent(url)}" allowfullscreen allow="autoplay"></iframe>`;
+                    hlsPlayer = new Hls();
+                    hlsPlayer.loadSource(url);
+                    hlsPlayer.attachMedia(video);
+                    // إذا فشل المشغل في تحميل الرابط (بسبب CORS)، ننتقل لمشغل Embed تلقائياً
+                    hlsPlayer.on(Hls.Events.ERROR, function (event, data) {
+                        if (data.fatal) {
+                            root.innerHTML = `<iframe src="https://player.clappr.io/?src=${encodeURIComponent(url)}" allowfullscreen></iframe>`;
+                        }
                     });
                 } else { video.src = url; }
             } else {
+                // إذا كان الرابط iframe أو رابط موقع آخر
                 root.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay"></iframe>`;
             }
         }
 
         function closePlayer() {
-            if(hls) hls.destroy();
+            if(hlsPlayer) hlsPlayer.destroy();
             document.getElementById('player-section').style.display = 'none';
             document.getElementById('match-grid').style.display = 'grid';
             document.getElementById('video-root').innerHTML = '';
