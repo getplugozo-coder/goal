@@ -3,63 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream Player | HTTPS Optimized</title>
+    <title>GOAL LIVE | PRO PLAYER</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { background-color: #020617; font-family: system-ui, -apple-system, sans-serif; }
-        .video-wrapper { width: 100%; max-width: 800px; margin: 0 auto; aspect-ratio: 16/9; background: #000; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; }
-        video { width: 100%; height: 100%; object-fit: contain; }
+        body { background-color: #050a12; color: white; font-family: sans-serif; }
+        .player-container { width: 100%; max-width: 700px; margin: 0 auto; sticky top: 0; z-index: 50; }
+        .match-list { max-width: 600px; margin: 20px auto; padding: 10px; }
+        .match-item { background: #101927; border: 1px solid #1e293b; padding: 15px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; transition: 0.3s; }
+        .match-item:hover { border-color: #f97316; background: #162031; }
     </style>
 </head>
-<body class="p-4 text-white">
+<body>
 
-    <div class="max-w-2xl mx-auto">
-        <header class="text-center py-6">
-            <h1 class="text-2xl font-black text-orange-500 tracking-tighter uppercase">Goal Live <span class="text-white">Player</span></h1>
-        </header>
+    <div class="player-container">
+        <video id="player" playsinline controls data-poster="https://bit.ly/3Ym8S7G"></video>
+    </div>
 
-        <div class="video-wrapper shadow-2xl">
-            <video id="video" controls autoplay playsinline></video>
-        </div>
-
-        <div class="mt-8">
-            <h2 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-widest">قائمة القنوات (HTTPS)</h2>
-            <div id="channel-list" class="grid grid-cols-1 gap-3">
-                <button onclick="playStream('https://stream.supertv.gg:3001/supertv/sport/stv1/ch3/ch3_360.m3u8')" 
-                        class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex justify-between items-center hover:bg-slate-800 transition">
-                    <span class="font-bold">قناة رياضية (STV 1)</span>
-                    <span class="text-[10px] bg-green-500/20 text-green-500 px-2 py-1 rounded">HTTPS OK</span>
-                </button>
-            </div>
+    <div class="match-list">
+        <h2 class="text-orange-500 font-black mb-4 tracking-tighter italic text-xl">مباريات اليوم المباشرة</h2>
+        <div id="matches">
+            <p class="text-gray-600 text-center">جاري جلب القنوات من الجدول...</p>
         </div>
     </div>
 
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
     <script>
-        const video = document.getElementById('video');
+        const video = document.getElementById('player');
+        const SHEET_API = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89";
+        
+        // إعداد المشغل
+        const player = new Plyr(video, {
+            captions: { active: true, update: true, language: 'en' },
+            tooltips: { controls: true, seek: true }
+        });
 
+        // وظيفة تشغيل الرابط
         function playStream(url) {
             if (Hls.isSupported()) {
-                const hls = new Hls();
+                const hls = new Hls({
+                    xhrSetup: function(xhr, url) {
+                        // محاولة تخطي CORS
+                        xhr.withCredentials = false;
+                    }
+                });
                 hls.loadSource(url);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
                     video.play();
                 });
-            } 
-            // للهواتف (iPhone/Safari) اللي كتدعم HLS داخلياً
-            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = url;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // جلب البيانات من Google Sheets
+        async function fetchMatches() {
+            try {
+                const res = await fetch(SHEET_API);
+                const data = await res.json();
+                const container = document.getElementById('matches');
+                container.innerHTML = "";
+
+                data.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = "match-item flex justify-between items-center";
+                    // نأخذ الرابط من عمود streams في الجدول
+                    div.onclick = () => playStream(m.streams);
+                    div.innerHTML = `
+                        <div class="font-bold text-sm">${m.team1}</div>
+                        <div class="text-xs bg-orange-600/20 text-orange-500 px-2 py-1 rounded font-black">${m.time}</div>
+                        <div class="font-bold text-sm text-left">${m.team2}</div>
+                    `;
+                    container.appendChild(div);
                 });
+            } catch (error) {
+                document.getElementById('matches').innerHTML = "خطأ في الاتصال بالجدول!";
             }
         }
 
-        // تشغيل الرابط تلقائياً عند الفتح (اختياري)
-        window.onload = () => {
-            playStream('https://stream.supertv.gg:3001/supertv/sport/stv1/ch3/ch3_360.m3u8');
-        };
+        fetchMatches();
     </script>
 </body>
 </html>
