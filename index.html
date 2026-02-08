@@ -3,89 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بث مباشر - المتصفح فقط</title>
+    <title>البث المباشر | مشاهدة آمنة عبر المتصفح</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
     <style>
-        :root { --main: #2563eb; --dark: #0f172a; --text: #f8fafc; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--dark); color: var(--text); margin: 0; text-align: center; }
-        .wrapper { width: 95%; max-width: 850px; margin: 20px auto; }
-        .ad-space { background: #1e293b; padding: 10px; margin: 10px 0; border-radius: 8px; min-height: 90px; }
-        .match-box { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-bottom: 4px solid var(--main); }
-        #player-container { position: relative; background: #000; border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; }
-        video { width: 100%; height: 100%; }
-        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
-        .play-btn { background: var(--main); color: white; border: none; padding: 15px 40px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .note { font-size: 0.8rem; color: #94a3b8; margin-top: 10px; }
+        :root {
+            --primary: #2563eb;
+            --accent: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --white: #f8fafc;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--white);
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* تنسيق الإعلانات */
+        .ad-container {
+            width: 100%;
+            margin: 15px 0;
+            background: var(--card);
+            border-radius: 8px;
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px dashed #475569;
+        }
+
+        .header-title {
+            text-align: center;
+            color: var(--white);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .match-info-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-right: 5px solid var(--accent);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        #m-name { margin: 0; font-size: 1.6rem; color: var(--white); }
+        #m-time { margin: 10px 0 0; color: #94a3b8; font-weight: 500; }
+
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .play-button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .play-button:hover { transform: scale(1.08); background: #dc2626; }
+
+        .status-tag {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header-title { font-size: 1.1rem; }
+            #m-name { font-size: 1.2rem; }
+            .play-button { padding: 14px 35px; font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
 
-<div class="wrapper">
-    <h2>🔴 مشاهدة المباراة مباشرة عبر المتصفح</h2>
+    <div class="main-container">
+        <h1 class="header-title">🔴 مشاهدة المباراة مباشرة عبر المتصفح</h1>
 
-    <div class="ad-space" id="top-ad">
-        <div style="color:#475569">إعلان متجاوب العلوي</div>
-    </div>
-
-    <div class="match-box">
-        <h3 id="m-name">جاري جلب البيانات...</h3>
-        <p id="m-time">--:--</p>
-    </div>
-
-    <div id="player-container">
-        <div class="overlay" id="overlay">
-            <button class="play-btn" onclick="initPlayer()">▶️ تشغيل البث</button>
-            <p class="note">يعمل عبر المتصفح فقط</p>
+        <div class="ad-container" id="banner-top">
+            <p style="color: #475569;">إعلان متوافق (Banner Space)</p>
         </div>
-        <video id="video" controls playsinline></video>
+
+        <div class="match-info-card">
+            <h2 id="m-name">تحميل البيانات...</h2>
+            <div id="m-time">يرجى الانتظار</div>
+        </div>
+
+        <div class="player-wrapper">
+            <div class="overlay" id="overlay">
+                <button class="play-button" onclick="startPlayer()">▶️ تشغيل البث</button>
+                <span class="status-tag">متوافق مع جميع المتصفحات</span>
+            </div>
+            <video id="video" controls playsinline></video>
+        </div>
+
+        <p style="text-align: center; color: #64748b; font-size: 0.8rem; margin-top: 20px;">
+            ملاحظة: البث يعمل داخل المتصفح فقط ولا يحتاج لتطبيقات خارجية.
+        </p>
     </div>
-</div>
 
-<script>
-    // ضع رابط الـ CSV من Google Sheets هنا
-    const CSV_URL = 'ضع_رابط_CSV_هنا'; 
-    let finalStreamUrl = "";
+    <script>
+        // رابط CSV الذي قدمته
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv';
+        
+        let streamSource = "";
 
-    async function getMatchData() {
-        try {
-            const response = await fetch(CSV_URL);
-            const data = await response.text();
-            
-            // تحويل CSV إلى مصفوفة (تخطي السطر الأول)
-            const rows = data.split('\n').slice(1);
-            if(rows[0]) {
-                const [match, time, url] = rows[0].split(',');
-                document.getElementById('m-name').innerText = match;
-                document.getElementById('m-time').innerText = "التوقيت: " + time;
-                finalStreamUrl = url.trim();
+        async function updateSheetData() {
+            try {
+                const res = await fetch(CSV_URL);
+                const text = await res.text();
+                
+                // تقسيم الأسطر وتحويلها لمصفوفة
+                const rows = text.split('\n').map(row => row.split(','));
+                
+                // السطر الأول غالباً هو العناوين (Match, Time, URL)
+                // نأخذ البيانات من السطر الثاني (Index 1)
+                if (rows.length > 1) {
+                    const matchName = rows[1][0].trim();
+                    const matchTime = rows[1][1].trim();
+                    const matchUrl = rows[1][2].trim();
+
+                    document.getElementById('m-name').innerText = matchName;
+                    document.getElementById('m-time').innerText = "توقيت المباراة: " + matchTime;
+                    streamSource = matchUrl;
+                }
+            } catch (err) {
+                console.error("Data Fetch Error:", err);
+                document.getElementById('m-name').innerText = "البث غير متوفر حالياً";
             }
-        } catch (e) {
-            document.getElementById('m-name').innerText = "خطأ في اتصال البيانات";
         }
-    }
 
-    function initPlayer() {
-        if (!finalStreamUrl) return alert("الرابط غير متاح");
-        
-        const video = document.getElementById('video');
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(finalStreamUrl);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = finalStreamUrl;
-            video.play();
+        function startPlayer() {
+            if (!streamSource || streamSource === "") {
+                alert("رابط البث لم يتم تحديثه بعد في الملف.");
+                return;
+            }
+
+            const video = document.getElementById('video');
+            const overlay = document.getElementById('overlay');
+
+            // منطق تشغيل HLS
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(streamSource);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // دعم Safari و iOS
+                video.src = streamSource;
+                video.addEventListener('loadedmetadata', () => {
+                    video.play();
+                });
+            }
+
+            // إخفاء الغطاء العلوي عند البدء
+            overlay.style.display = 'none';
+            
+            // إخفاء البانر العلوي لتقليل التشتت عند المشاهدة
+            document.getElementById('banner-top').style.visibility = 'hidden';
+            document.getElementById('banner-top').style.height = '0px';
+            document.getElementById('banner-top').style.margin = '0px';
         }
-        
-        document.getElementById('overlay').style.display = 'none';
-        // لا يوجد أكواد إعلانية هنا لضمان عدم إزعاج المشاهد بعد البدء
-    }
 
-    // التحديث التلقائي
-    getMatchData();
-    setInterval(getMatchData, 30000); // تحديث كل 30 ثانية
-</script>
-
+        // تحديث البيانات عند فتح الصفحة
+        updateSheetData();
+        // تحديث البيانات تلقائياً كل دقيقتين في حال تغير الرابط
+        setInterval(updateSheetData, 120000);
+    </script>
 </body>
 </html>
