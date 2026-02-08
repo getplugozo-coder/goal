@@ -2,57 +2,81 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAL LIVE | النسخة النهائية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GOAL LIVE | MPV Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background-color: #050a12; color: white; text-align: center; }
-        .card { background: #101927; border-radius: 20px; padding: 20px; margin: 15px auto; max-width: 400px; border: 1px solid #1e293b; }
-        .btn { display: block; width: 100%; padding: 12px; margin-top: 10px; border-radius: 12px; font-weight: bold; }
+        body { font-family: 'Cairo', sans-serif; background-color: #020617; color: white; }
+        .match-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 1.5rem; }
+        .btn-mpv { background: linear-gradient(45deg, #000000, #1e293b); border: 1px solid #334155; }
     </style>
 </head>
-<body class="p-5">
+<body class="p-4">
 
-    <h1 class="text-3xl font-black text-orange-500 mb-5 italic">GOAL LIVE</h1>
+    <header class="text-center py-6">
+        <h1 class="text-3xl font-black text-orange-500 italic">GOAL<span class="text-white">LIVE</span></h1>
+        <p class="text-gray-500 text-[10px] uppercase tracking-widest font-bold">MPV Optimized Player</p>
+    </header>
 
-    <div id="match-list">
-        <p class="text-gray-500">جاري جلب القنوات...</p>
-    </div>
+    <main id="match-list" class="max-w-md mx-auto space-y-4">
+        <div id="loader" class="text-center py-20 text-gray-600 font-bold">جاري التحميل...</div>
+    </main>
 
     <script>
+        // بيانات السيرفر
         const SERVER = "http://hikcoo.xyz:8080";
         const USER = "2171855479556216";
         const PASS = "6019132685779108";
         const SHEET_API = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89";
 
-        async function load() {
+        async function loadMatches() {
             try {
-                const res = await fetch(SHEET_API);
-                const data = await res.json();
-                let html = "";
-                
-                data.forEach(m => {
-                    // الرابط المباشر للقناة
-                    const stream = `${SERVER}/live/${USER}/${PASS}/${m.streams}.m3u8`;
-                    
-                    html += `
-                    <div class="card shadow-2xl">
-                        <h2 class="font-bold text-lg mb-4">${m.team1} VS ${m.team2}</h2>
-                        <div class="flex flex-col gap-2">
-                            <a href="vlc://${stream}" class="btn bg-orange-600 text-black">VLC PLAYER (1)</a>
-                            
-                            <a href="intent:${stream}#Intent;package=com.mxtech.videoplayer.ad;S.title=${m.team1};end" class="btn bg-blue-600">MX PLAYER (2)</a>
+                const response = await fetch(SHEET_API);
+                const data = await response.json();
+                const list = document.getElementById('match-list');
+                list.innerHTML = "";
 
-                            <a href="${stream}" class="text-[10px] text-gray-600 mt-2 block underline">رابط مباشر للمتصفح</a>
+                data.forEach(m => {
+                    const streamUrl = `${SERVER}/live/${USER}/${PASS}/${m.streams}.m3u8`;
+                    
+                    // كود الـ Intent الخاص بـ MPV Player
+                    const mpvIntent = `intent:${streamUrl}#Intent;package=is.xyz.mpv;S.title=${encodeURIComponent(m.team1 + ' VS ' + m.team2)};end`;
+
+                    list.innerHTML += `
+                    <div class="match-card p-5 shadow-2xl">
+                        <div class="text-center text-[10px] text-gray-500 font-bold mb-4 uppercase">${m.league}</div>
+                        
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="text-center flex-1">
+                                <img src="${m.logo1}" class="w-14 h-14 mx-auto object-contain mb-2">
+                                <div class="text-[12px] font-bold h-8">${m.team1}</div>
+                            </div>
+                            <div class="text-center px-4">
+                                <div class="text-2xl font-black">${m.time}</div>
+                                <div class="text-red-500 text-[10px] font-bold animate-pulse uppercase">Live</div>
+                            </div>
+                            <div class="text-center flex-1">
+                                <img src="${m.logo2}" class="w-14 h-14 mx-auto object-contain mb-2">
+                                <div class="text-[12px] font-bold h-8">${m.team2}</div>
+                            </div>
+                        </div>
+
+                        <a href="${mpvIntent}" class="btn-mpv flex items-center justify-center gap-2 text-white py-3.5 rounded-xl font-black text-sm active:scale-95 transition-transform">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>
+                            تشغيل بواسطة MPV
+                        </a>
+                        
+                        <div class="mt-4 text-center text-[10px] text-gray-600">
+                             القناة: ${m.channel}
                         </div>
                     </div>`;
                 });
-                document.getElementById('match-list').innerHTML = html;
             } catch (e) {
-                document.getElementById('match-list').innerHTML = "فشل التحميل، تأكد من أن Google Sheet يعمل.";
+                document.getElementById('match-list').innerHTML = "Error!";
             }
         }
-        load();
+        loadMatches();
     </script>
 </body>
 </html>
