@@ -3,73 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAL LIVE | GitHub Edition</title>
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>GOAL LIVE | النسخة السريعة</title>
     <style>
-        body { background-color: #020617; color: white; font-family: sans-serif; margin: 0; }
-        .player-area { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; border-bottom: 2px solid #f97316; }
+        body { background: #020617; color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        .player-area { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; border-bottom: 2px solid #f97316; z-index: 100; }
         iframe { width: 100%; height: 100%; border: none; }
-        .container { max-width: 500px; margin: 20px auto; padding: 10px; }
+        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
         .match-card { 
             background: #0f172a; border: 1px solid #1e293b; padding: 15px; 
-            border-radius: 12px; margin-bottom: 10px; display: flex; 
+            border-radius: 12px; margin-bottom: 12px; display: flex; 
             justify-content: space-between; align-items: center; cursor: pointer;
+            transition: 0.2s;
         }
-        .match-card:hover { border-color: #f97316; }
-        #status { text-align: center; color: #64748b; margin-top: 20px; font-size: 12px; }
+        .match-card:hover { border-color: #f97316; background: #131e33; }
+        .team { font-weight: bold; font-size: 14px; width: 40%; }
+        .time { color: #f97316; font-weight: 900; font-size: 15px; }
+        #status { text-align: center; color: #64748b; padding: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div class="player-area">
-        <iframe id="livePlayer" src="" allowfullscreen></iframe>
+        <iframe id="mainPlayer" src="" allowfullscreen allow="autoplay"></iframe>
     </div>
 
     <div class="container">
+        <h2 style="text-align: center; color: #f97316; font-style: italic;">مباريات اليوم</h2>
         <div id="match-list">
-            <div id="status">جاري جلب البيانات من GitHub...</div>
+            <div id="status">جاري جلب القنوات...</div>
         </div>
     </div>
 
     <script>
-        // استعمال HTTPS ضروري في GitHub
-        const API_KEY = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89";
+        // رابط الـ CSV ديالك اللي عطيتيني
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv";
 
-        async function init() {
-            const list = document.getElementById('match-list');
+        async function loadMatches() {
             try {
-                // إضافة التوقيت لمنع المتصفح من قراءة النسخة القديمة (Cache)
-                const res = await fetch(`${API_KEY}?_t=${Date.now()}`);
-                const data = await res.json();
+                // إضافة timestamp لتفادي الكاش
+                const response = await fetch(CSV_URL + "&t=" + new Date().getTime());
+                const csvData = await response.text();
+                
+                // تحويل الـ CSV لـ JSON
+                const rows = csvData.split('\n').slice(1); // تجاهل سطر العنوان
+                const listDiv = document.getElementById('match-list');
+                listDiv.innerHTML = "";
 
-                if (data.length === 0) {
-                    list.innerHTML = "<div id='status'>لا توجد مباريات حالياً</div>";
-                    return;
-                }
+                rows.forEach(row => {
+                    const columns = row.split(',');
+                    if (columns.length < 4) return;
 
-                list.innerHTML = ""; 
-                data.forEach(m => {
+                    // ترتيب الأعمدة: 0=team1, 1=team2, 2=time, 3=streams
+                    const team1 = columns[0];
+                    const team2 = columns[1];
+                    const time = columns[2];
+                    const streamUrl = columns[3].trim();
+
                     const card = document.createElement('div');
                     card.className = "match-card";
                     card.onclick = () => {
-                        // تحويل الرابط لـ HTTPS إذا كان ممكناً لتفادي البلوك في الحاسوب
-                        let streamUrl = m.streams.replace("http://", "https://");
-                        document.getElementById('livePlayer').src = streamUrl;
+                        document.getElementById('mainPlayer').src = streamUrl;
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     };
                     card.innerHTML = `
-                        <span style="width:35%">${m.team1}</span>
-                        <span style="color:#f97316; font-weight:bold">${m.time}</span>
-                        <span style="width:35%; text-align:left">${m.team2}</span>
+                        <div class="team" style="text-align: right;">${team1}</div>
+                        <div class="time">${time}</div>
+                        <div class="team" style="text-align: left;">${team2}</div>
                     `;
-                    list.appendChild(card);
+                    listDiv.appendChild(card);
                 });
-            } catch (err) {
-                list.innerHTML = "<div id='status text-red-500'>خطأ في تحميل الجدول. تأكد من إعدادات HTTPS</div>";
+            } catch (error) {
+                document.getElementById('status').innerHTML = "خطأ في الاتصال. تأكد من نشر الجدول للويب.";
+                console.error(error);
             }
         }
 
-        init();
+        loadMatches();
+        // تحديث تلقائي كل دقيقة
+        setInterval(loadMatches, 60000);
     </script>
 </body>
 </html>
