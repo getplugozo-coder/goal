@@ -3,88 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAL LIVE | PRO PLAYER</title>
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <title>GOAL LIVE | نظام التحكم الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #050a12; color: white; font-family: sans-serif; }
-        .player-container { width: 100%; max-width: 700px; margin: 0 auto; sticky top: 0; z-index: 50; }
-        .match-list { max-width: 600px; margin: 20px auto; padding: 10px; }
-        .match-item { background: #101927; border: 1px solid #1e293b; padding: 15px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; transition: 0.3s; }
-        .match-item:hover { border-color: #f97316; background: #162031; }
+        body { font-family: 'Cairo', sans-serif; background-color: #020617; color: white; margin: 0; }
+        .player-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #f97316; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .match-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 1rem; cursor: pointer; transition: 0.3s; }
+        .match-card:hover { border-color: #f97316; background: #1e293b; }
+        .active-match { border-color: #f97316; background: #1e293b; box-shadow: 0 0 15px rgba(249, 115, 22, 0.3); }
     </style>
 </head>
 <body>
 
-    <div class="player-container">
-        <video id="player" playsinline controls data-poster="https://bit.ly/3Ym8S7G"></video>
-    </div>
-
-    <div class="match-list">
-        <h2 class="text-orange-500 font-black mb-4 tracking-tighter italic text-xl">مباريات اليوم المباشرة</h2>
-        <div id="matches">
-            <p class="text-gray-600 text-center">جاري جلب القنوات من الجدول...</p>
+    <div class="player-wrapper">
+        <div id="video-placeholder" class="flex flex-col items-center justify-center h-full text-gray-500">
+            <p class="text-sm font-bold">اختر مباراة للتشغيل المباشر</p>
+        </div>
+        <div id="player-container" class="hidden h-full">
+            <iframe id="main-iframe" src="" allowfullscreen allow="autoplay"></iframe>
         </div>
     </div>
 
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-    <script>
-        const video = document.getElementById('player');
-        const SHEET_API = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89";
-        
-        // إعداد المشغل
-        const player = new Plyr(video, {
-            captions: { active: true, update: true, language: 'en' },
-            tooltips: { controls: true, seek: true }
-        });
+    <main class="p-4 max-w-md mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-2xl font-black text-orange-500 italic uppercase">Goal<span class="text-white">Live</span></h1>
+            <p class="text-[10px] text-gray-500 tracking-[3px]">نظام التحكم عبر Google Sheets</p>
+        </header>
 
-        // وظيفة تشغيل الرابط
-        function playStream(url) {
-            if (Hls.isSupported()) {
-                const hls = new Hls({
-                    xhrSetup: function(xhr, url) {
-                        // محاولة تخطي CORS
-                        xhr.withCredentials = false;
-                    }
-                });
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-            }
+        <div id="match-list" class="space-y-3">
+            <div class="text-center py-10 text-gray-600 animate-pulse">جاري جلب جدول المباريات...</div>
+        </div>
+    </main>
+
+    <script>
+        // رابط API الخاص بك من SheetBest
+        const API_URL = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89";
+
+        // وظيفة تغيير المباراة
+        function changeStream(url, element) {
+            const container = document.getElementById('player-container');
+            const placeholder = document.getElementById('video-placeholder');
+            const iframe = document.getElementById('main-iframe');
+
+            // إظهار المشغل وإخفاء النص الترحيبي
+            placeholder.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            // تحديث الرابط
+            iframe.src = url;
+
+            // تحديث شكل البطاقة النشطة
+            document.querySelectorAll('.match-card').forEach(c => c.classList.remove('active-match'));
+            element.classList.add('active-match');
+
+            // صعود تلقائي للمشغل
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // جلب البيانات من Google Sheets
+        // جلب البيانات من Sheet
         async function fetchMatches() {
             try {
-                const res = await fetch(SHEET_API);
-                const data = await res.json();
-                const container = document.getElementById('matches');
-                container.innerHTML = "";
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                const list = document.getElementById('match-list');
+                list.innerHTML = "";
 
                 data.forEach(m => {
-                    const div = document.createElement('div');
-                    div.className = "match-item flex justify-between items-center";
-                    // نأخذ الرابط من عمود streams في الجدول
-                    div.onclick = () => playStream(m.streams);
-                    div.innerHTML = `
-                        <div class="font-bold text-sm">${m.team1}</div>
-                        <div class="text-xs bg-orange-600/20 text-orange-500 px-2 py-1 rounded font-black">${m.time}</div>
-                        <div class="font-bold text-sm text-left">${m.team2}</div>
+                    const card = document.createElement('div');
+                    card.className = "match-card p-4 flex items-center justify-between";
+                    
+                    // عند الضغط، نرسل الرابط الموجود في عمود streams
+                    card.onclick = () => changeStream(m.streams, card);
+
+                    card.innerHTML = `
+                        <div class="flex-1 text-right font-bold text-xs">${m.team1}</div>
+                        <div class="px-4 text-center">
+                            <div class="text-orange-500 font-black text-sm">${m.time}</div>
+                            <div class="text-[8px] text-gray-500 uppercase">${m.league || 'مباراة'}</div>
+                        </div>
+                        <div class="flex-1 text-left font-bold text-xs">${m.team2}</div>
                     `;
-                    container.appendChild(div);
+                    list.appendChild(card);
                 });
             } catch (error) {
-                document.getElementById('matches').innerHTML = "خطأ في الاتصال بالجدول!";
+                document.getElementById('match-list').innerHTML = "<p class='text-center text-red-500'>خطأ في تحميل الجدول</p>";
             }
         }
 
+        // جلب البيانات عند فتح الصفحة
         fetchMatches();
+        
+        // تحديث البيانات تلقائياً كل دقيقتين
+        setInterval(fetchMatches, 120000);
     </script>
 </body>
 </html>
