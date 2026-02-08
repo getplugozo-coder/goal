@@ -3,317 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <title>GoalLive PRO | شاهد مباريات اليوم بث مباشر - كورة لايف</title>
-    <meta name="description" content="GoalLive PRO وجهتك الأولى لمشاهدة البث المباشر للمباريات بجودة عالية. تابع الدوري المغربي، الإسباني، والإنجليزي بدون تقطيع.">
-    <meta name="keywords" content="كورة لايف, بث مباشر, مباريات اليوم, GoalLive PRO, koora live, الدوري المغربي, يلا شوت, ياسين تيفي">
-    <link rel="canonical" href="http://ihoum24.unaux.com/">
-    
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="GoalLive PRO | البث المباشر للمباريات">
-    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/33/33736.png">
-    <meta property="og:description" content="شاهد فريقك المفضل الآن بجودة عالية وبدون إعلانات مزعجة.">
-
+    <title>FREE LIVE | البث المباشر</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
     <style>
-        :root {
-            --bg-body: #050a12;
-            --bg-header: #0a111e;
-            --primary: #ff7300;
-            --accent: #00d4ff;
-            --card-grad: linear-gradient(145deg, #101927, #0d1420);
-            --live-color: #00ff88;
-            --ended-color: #ff4444;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        
-        body { 
-            background: var(--bg-body); 
-            color: #e1e1e1; 
-            padding-bottom: 50px;
-            overflow-x: hidden;
-        }
-
-        header { 
-            background: var(--bg-header);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: sticky; top: 0; z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            border-bottom: 1px solid rgba(255,115,0,0.2);
-        }
-
-        .logo { font-size: 26px; font-weight: 900; color: #fff; text-decoration: none; letter-spacing: 1px; }
-        .logo span { color: var(--primary); text-shadow: 0 0 10px rgba(255,115,0,0.4); }
-
-        .container { width: 92%; max-width: 900px; margin: 20px auto; }
-
-        /* مشغل الفيديو */
-        #player-section {
-            display: none;
-            margin-bottom: 30px;
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 2px solid var(--primary);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-
-        video { width: 100%; aspect-ratio: 16/9; display: block; background: #000; }
-
-        .player-info {
-            padding: 15px 20px;
-            background: #0d1420;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* شبكة المباريات */
-        .match-grid { display: grid; gap: 18px; }
-
-        .match-card {
-            background: var(--card-grad);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.03);
-            cursor: pointer;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-        }
-
-        .match-card:hover {
-            transform: scale(1.02);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-
-        .league-name {
-            font-size: 11px; text-align: center; color: var(--accent);
-            margin-bottom: 15px; font-weight: bold; opacity: 0.8;
-            letter-spacing: 1px;
-        }
-
-        .match-flex { display: flex; align-items: center; justify-content: space-around; }
-
-        .team { flex: 1; text-align: center; }
-        .team img { 
-            width: 60px; height: 60px; 
-            object-fit: contain; 
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-            margin-bottom: 10px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 50%;
-            padding: 5px;
-        }
-        .team p { font-size: 14px; font-weight: 700; color: #fff; }
-
-        .match-center { flex: 0.8; text-align: center; }
-
-        /* نظام الحالات */
-        .status-pill {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 10px;
-            font-weight: 900;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-        .live { background: rgba(0, 255, 136, 0.1); color: var(--live-color); border: 1px solid var(--live-color); animation: blink 1.5s infinite; }
-        .soon { background: rgba(255,255,255,0.05); color: #8b949e; border: 1px solid #30363d; }
-        .ended { background: rgba(255, 68, 68, 0.1); color: var(--ended-color); border: 1px solid var(--ended-color); }
-
-        @keyframes blink { 50% { opacity: 0.4; } }
-
-        .match-time { font-size: 24px; font-weight: 900; color: #fff; display: block; }
-        .live-timer { color: var(--live-color); font-size: 13px; font-weight: bold; display: block; }
-
-        /* الإعلان */
-        #ad-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 10, 18, 0.98); z-index: 2000;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .ad-box { 
-            text-align: center; padding: 40px; border-radius: 30px; 
-            background: #0d1420; border: 1px solid var(--primary);
-            max-width: 400px; width: 90%;
-        }
-
-        .btn-play {
-            background: var(--primary); color: #000;
-            padding: 15px 40px; border-radius: 12px; font-weight: 900;
-            border: none; cursor: pointer; font-size: 16px; margin-top: 20px;
-            transition: 0.3s; width: 100%;
-        }
-
-        .loader { width: 40px; height: 40px; border: 3px solid #101927; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 100px auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        body { font-family: 'Cairo', sans-serif; background-color: #050a12; color: white; }
+        .match-card { background: #101927; border: 1px solid #1f2937; border-radius: 1.5rem; }
+        .btn-vlc { background: #ff8800; color: black; font-weight: 900; }
+        .btn-mx { background: #007cf0; color: white; font-weight: 900; }
     </style>
 </head>
-<body>
+<body class="p-4">
 
-    <header><a href="/" class="logo">GOAL<span>LIVE</span> PRO</a></header>
-
-    <div id="ad-overlay">
-        <div class="ad-box">
-            <h2 style="color: #fff; margin-bottom: 10px;">جاري تجهيز البث المباشر</h2>
-            <p style="color: #8b949e; font-size: 14px;">يتم الآن الاتصال بالسيرفر، يرجى الانتظار...</p>
-            <div id="seconds" style="font-size: 45px; font-weight: 900; color: var(--primary); margin: 20px 0;">10</div>
-            <button id="btn-start" class="btn-play" style="display:none;" onclick="runStream()">WATCH NOW / مشاهدة الآن</button>
-        </div>
+    <div id="ad-space" class="max-w-md mx-auto mb-6 h-12 border border-dashed border-gray-700 rounded flex items-center justify-center text-[10px] text-gray-600">
+        AD SPACE
     </div>
 
-    <div class="container">
-        <div id="player-section">
-            <video id="video-root" controls playsinline poster="https://img.freepik.com/premium-photo/football-stadium-night-background_850000-47.jpg"></video>
-            <div class="player-info">
-                <span id="playing-title" style="font-weight: 900; color: var(--primary);"></span>
-                <button onclick="closeStream()" style="background:var(--ended-color); border:none; color:#fff; font-weight:bold; padding: 5px 15px; border-radius: 8px; cursor:pointer;">إغلاق X</button>
-            </div>
-        </div>
+    <header class="text-center py-4">
+        <h1 class="text-3xl font-black text-orange-500 italic">GOAL<span class="text-white">LIVE</span></h1>
+        <p class="text-gray-500 text-[10px]">نظام التشغيل المباشر - نسخة مجانية</p>
+    </header>
 
-        <div id="match-grid" class="match-grid">
-            <div class="loader"></div>
-        </div>
-    </div>
+    <main id="match-list" class="max-w-md mx-auto space-y-4">
+        <div class="text-center py-20"><div class="animate-spin inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full"></div></div>
+    </main>
 
     <script>
-        const SHEET_API = 'https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89';
-        const PROXY = 'http://ihoum24.unaux.com/proxy.php?channels=';
-        let currentLink = '';
-        let hls = null;
+        // بياناتك (مجانية ومباشرة)
+        const SERVER = "http://hikcoo.xyz:8080";
+        const USER = "2171855479556216";
+        const PASS = "6019132685779108";
+        const SHEET_API = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89";
 
-        // دالة تحديد حالة المباراة تلقائياً
-        function checkStatus(mTime) {
-            const now = new Date();
-            const [h, m] = mTime.split(':');
-            const start = new Date();
-            start.setHours(h, m, 0);
-            const diff = (now - start) / 60000;
-
-            if (diff < 0) return { label: 'Upcoming', class: 'soon', time: '' };
-            if (diff >= 0 && diff <= 125) {
-                let liveTime = diff > 90 ? '90+' : Math.floor(diff) + "'";
-                return { label: 'Live Now', class: 'live', time: liveTime };
-            }
-            return { label: 'Ended', class: 'ended', time: 'FT' };
-        }
-
-        async function getMatches() {
+        async function loadMatches() {
             try {
                 const response = await fetch(SHEET_API);
                 const data = await response.json();
-                const grid = document.getElementById('match-grid');
-                grid.innerHTML = data.map(m => {
-                    const status = checkStatus(m.time);
-                    return `
-                        <div class="match-card" onclick="openOverlay('${m.streams}', '${m.team1} VS ${m.team2}')">
-                            <div class="league-name">🏆 ${m.league}</div>
-                            <div class="match-flex">
-                                <div class="team">
-                                    <img src="${m.logo1}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/33/33736.png'">
-                                    <p>${m.team1}</p>
-                                </div>
-                                <div class="match-center">
-                                    <span class="status-pill ${status.class}">${status.label}</span>
-                                    <span class="match-time">${m.time}</span>
-                                    <span class="live-timer">${status.time}</span>
-                                </div>
-                                <div class="team">
-                                    <img src="${m.logo2}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/33/33736.png'">
-                                    <p>${m.team2}</p>
-                                </div>
+                const list = document.getElementById('match-list');
+                list.innerHTML = "";
+
+                data.forEach(m => {
+                    // رابط مباشر بدون وسيط لتقليل Connections
+                    const streamUrl = `${SERVER}/live/${USER}/${PASS}/${m.streams}.m3u8`;
+
+                    list.innerHTML += `
+                    <div class="match-card p-5 shadow-2xl">
+                        <div class="text-center text-[10px] text-gray-500 font-bold mb-4 uppercase tracking-widest">${m.league}</div>
+                        
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="text-center flex-1">
+                                <img src="${m.logo1}" class="w-14 h-14 mx-auto object-contain mb-2 shadow-lg">
+                                <div class="text-[12px] font-black leading-tight">${m.team1}</div>
                             </div>
-                            <div style="text-align:center; font-size:10px; color:#555; margin-top:12px; font-weight:bold;">${m.channel}</div>
+                            <div class="text-center px-4 flex flex-col items-center">
+                                <div class="text-2xl font-black mb-1">${m.time}</div>
+                                <div class="bg-red-600 text-[9px] px-2 py-0.5 rounded font-bold animate-pulse">LIVE</div>
+                            </div>
+                            <div class="text-center flex-1">
+                                <img src="${m.logo2}" class="w-14 h-14 mx-auto object-contain mb-2 shadow-lg">
+                                <div class="text-[12px] font-black leading-tight">${m.team2}</div>
+                            </div>
                         </div>
-                    `;
-                }).join('');
-            } catch (e) { console.error("Error fetching matches"); }
-        }
 
-        function openOverlay(id, title) {
-            currentLink = PROXY + id;
-            document.getElementById('playing-title').innerText = title;
-            document.getElementById('ad-overlay').style.display = 'flex';
-            document.getElementById('btn-start').style.display = 'none';
-            document.getElementById('seconds').style.display = 'block';
-            let sec = 10;
-            const timer = setInterval(() => {
-                sec--;
-                document.getElementById('seconds').innerText = sec;
-                if(sec <= 0) {
-                    clearInterval(timer);
-                    document.getElementById('btn-start').style.display = 'block';
-                    document.getElementById('seconds').style.display = 'none';
-                }
-            }, 1000);
-        }
-
-        function runStream() {
-            document.getElementById('ad-overlay').style.display = 'none';
-            document.getElementById('player-section').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            const video = document.getElementById('video-root');
-            
-            if (Hls.isSupported()) {
-                if(hls) hls.destroy();
-                
-                // إعدادات المشغل العنيد (Resistant Player)
-                hls = new Hls({
-                    maxBufferLength: 30,
-                    maxMaxBufferLength: 60,
-                    manifestLoadingMaxRetry: 15,
-                    manifestLoadingRetryDelay: 1000,
-                    fragLoadingMaxRetry: 15,
-                    retryDelay: 1000
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="vlc://${streamUrl}" class="btn-vlc text-center py-3 rounded-xl text-[11px]">VLC PLAYER</a>
+                            
+                            <a href="intent:${streamUrl}#Intent;package=com.mxtech.videoplayer.ad;S.title=${encodeURIComponent(m.team1)};S.user-agent=Lavf/58.29.100;end" 
+                               class="btn-mx text-center py-3 rounded-xl text-[11px]">MX PLAYER</a>
+                        </div>
+                    </div>`;
                 });
-
-                hls.loadSource(currentLink);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-
-                // معالجة الأخطاء التلقائية
-                hls.on(Hls.Events.ERROR, function (event, data) {
-                    if (data.fatal) {
-                        switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                hls.startLoad();
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                hls.recoverMediaError();
-                                break;
-                            default:
-                                runStream(); // إعادة المحاولة النهائية
-                                break;
-                        }
-                    }
-                });
-            } else {
-                video.src = currentLink;
-                video.play();
-            }
+            } catch (e) { list.innerHTML = "Error!"; }
         }
-
-        function closeStream() {
-            document.getElementById('player-section').style.display = 'none';
-            const video = document.getElementById('video-root');
-            video.pause();
-            if(hls) hls.stopLoad();
-        }
-
-        getMatches();
-        setInterval(getMatches, 60000); // تحديث التوقيت كل دقيقة
+        loadMatches();
     </script>
 </body>
 </html>
