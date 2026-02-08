@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>البث المباشر | مشاهدة آمنة عبر المتصفح</title>
-    
+    <title>بث مباشر - واجهة المتصفح الذكية</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
     <style>
         :root {
             --primary: #2563eb;
@@ -17,204 +15,151 @@
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--bg);
             color: var(--white);
             font-family: system-ui, -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .main-container {
-            width: 100%;
-            max-width: 900px;
-            padding: 20px;
-            box-sizing: border-box;
+        .container { width: 100%; max-width: 800px; padding: 15px; box-sizing: border-box; }
+
+        /* مساحة إعلان HilltopAds */
+        .ad-space {
+            width: 100%; margin: 10px 0;
+            background: #1e293b; border-radius: 8px;
+            min-height: 90px; display: flex; justify-content: center; align-items: center;
         }
 
-        /* تنسيق الإعلانات */
-        .ad-container {
-            width: 100%;
+        .league-tag {
+            background: var(--primary);
+            padding: 5px 15px; border-radius: 20px;
+            font-size: 0.8rem; display: inline-block; margin-bottom: 10px;
+        }
+
+        .match-card {
+            background: var(--card);
+            padding: 20px; border-radius: 20px;
+            text-align: center; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .teams-area {
+            display: flex; justify-content: space-between; align-items: center;
             margin: 15px 0;
-            background: var(--card);
-            border-radius: 8px;
-            min-height: 100px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px dashed #475569;
         }
 
-        .header-title {
-            text-align: center;
-            color: var(--white);
-            font-size: 1.4rem;
-            margin-bottom: 20px;
+        .team { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        
+        .team img {
+            width: 70px; height: 70px;
+            object-fit: contain; background: #334155;
+            padding: 10px; border-radius: 50%; margin-bottom: 10px;
         }
 
-        .match-info-card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-            border-right: 5px solid var(--accent);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        .vs { font-weight: bold; font-size: 1.5rem; color: var(--accent); }
+
+        .time-box { color: #94a3b8; font-size: 1rem; border-top: 1px solid #334155; pt: 10px; }
+
+        .player-box {
+            position: relative; width: 100%; aspect-ratio: 16/9;
+            background: #000; border-radius: 15px; overflow: hidden;
         }
 
-        #m-name { margin: 0; font-size: 1.6rem; color: var(--white); }
-        #m-time { margin: 10px 0 0; color: #94a3b8; font-weight: 500; }
-
-        .player-wrapper {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #334155;
-        }
-
-        video { width: 100%; height: 100%; object-fit: contain; }
+        video { width: 100%; height: 100%; }
 
         .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
+            position: absolute; inset: 0; background: rgba(0,0,0,0.85);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10;
         }
 
-        .play-button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 18px 45px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        .play-btn {
+            background: var(--accent); color: white; border: none;
+            padding: 15px 40px; font-size: 1.2rem; font-weight: bold;
+            border-radius: 10px; cursor: pointer; transition: 0.3s;
         }
 
-        .play-button:hover { transform: scale(1.08); background: #dc2626; }
-
-        .status-tag {
-            font-size: 0.8rem;
-            color: #64748b;
-            margin-top: 15px;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .header-title { font-size: 1.1rem; }
-            #m-name { font-size: 1.2rem; }
-            .play-button { padding: 14px 35px; font-size: 1.1rem; }
-        }
+        .play-btn:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <h1 class="header-title">🔴 مشاهدة المباراة مباشرة عبر المتصفح</h1>
+    <div class="container">
+        <h2 style="text-align: center; font-size: 1.2rem;">🔴 مشاهدة مباشرة</h2>
 
-        <div class="ad-container" id="banner-top">
-            <p style="color: #475569;">إعلان متوافق (Banner Space)</p>
+        <div class="ad-space" id="top-banner">
+            <p style="color:#475569">مساحة إعلان 728x90</p>
         </div>
 
-        <div class="match-info-card">
-            <h2 id="m-name">تحميل البيانات...</h2>
-            <div id="m-time">يرجى الانتظار</div>
+        <div class="match-card">
+            <span class="league-tag" id="league-name">الدوري</span>
+            <div class="teams-area">
+                <div class="team">
+                    <img id="logo1" src="https://via.placeholder.com/70" alt="team1">
+                    <b id="team1-name">الفريق 1</b>
+                </div>
+                <div class="vs">VS</div>
+                <div class="team">
+                    <img id="logo2" src="https://via.placeholder.com/70" alt="team2">
+                    <b id="team2-name">الفريق 2</b>
+                </div>
+            </div>
+            <div class="time-box" id="match-time">00:00</div>
         </div>
 
-        <div class="player-wrapper">
+        <div class="player-box">
             <div class="overlay" id="overlay">
-                <button class="play-button" onclick="startPlayer()">▶️ تشغيل البث</button>
-                <span class="status-tag">متوافق مع جميع المتصفحات</span>
+                <button class="play-btn" onclick="startPlay()">▶️ تشغيل البث</button>
+                <p style="font-size: 0.7rem; color: #64748b; margin-top: 10px;">يعمل عبر المتصفح فقط</p>
             </div>
             <video id="video" controls playsinline></video>
         </div>
-
-        <p style="text-align: center; color: #64748b; font-size: 0.8rem; margin-top: 20px;">
-            ملاحظة: البث يعمل داخل المتصفح فقط ولا يحتاج لتطبيقات خارجية.
-        </p>
     </div>
 
     <script>
-        // رابط CSV الذي قدمته
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv';
-        
-        let streamSource = "";
+        let hlsUrl = "";
 
-        async function updateSheetData() {
+        async function loadMatch() {
             try {
-                const res = await fetch(CSV_URL);
-                const text = await res.text();
+                const response = await fetch(CSV_URL);
+                const data = await response.text();
+                const rows = data.split('\n').map(r => r.split(','));
                 
-                // تقسيم الأسطر وتحويلها لمصفوفة
-                const rows = text.split('\n').map(row => row.split(','));
-                
-                // السطر الأول غالباً هو العناوين (Match, Time, URL)
-                // نأخذ البيانات من السطر الثاني (Index 1)
-                if (rows.length > 1) {
-                    const matchName = rows[1][0].trim();
-                    const matchTime = rows[1][1].trim();
-                    const matchUrl = rows[1][2].trim();
+                if(rows.length > 1) {
+                    const [t1, t2, time, stream, league] = rows[1].map(v => v.trim());
+                    
+                    document.getElementById('team1-name').innerText = t1;
+                    document.getElementById('team2-name').innerText = t2;
+                    document.getElementById('match-time').innerText = "توقيت المباراة: " + time;
+                    document.getElementById('league-name').innerText = league;
+                    hlsUrl = stream;
 
-                    document.getElementById('m-name').innerText = matchName;
-                    document.getElementById('m-time').innerText = "توقيت المباراة: " + matchTime;
-                    streamSource = matchUrl;
+                    // جلب الشعارات تلقائياً (بحث بالاسم)
+                    document.getElementById('logo1').src = `https://logo.clearbit.com/${t1.replace(/\s/g, '')}.com?size=70&fallback=https://via.placeholder.com/70/1e293b/white?text=${t1[0]}`;
+                    document.getElementById('logo2').src = `https://logo.clearbit.com/${t2.replace(/\s/g, '')}.com?size=70&fallback=https://via.placeholder.com/70/1e293b/white?text=${t2[0]}`;
                 }
-            } catch (err) {
-                console.error("Data Fetch Error:", err);
-                document.getElementById('m-name').innerText = "البث غير متوفر حالياً";
-            }
+            } catch (e) { console.error("Error loading CSV"); }
         }
 
-        function startPlayer() {
-            if (!streamSource || streamSource === "") {
-                alert("رابط البث لم يتم تحديثه بعد في الملف.");
-                return;
-            }
-
+        function startPlay() {
+            if(!hlsUrl) return;
             const video = document.getElementById('video');
-            const overlay = document.getElementById('overlay');
-
-            // منطق تشغيل HLS
             if (Hls.isSupported()) {
                 const hls = new Hls();
-                hls.loadSource(streamSource);
+                hls.loadSource(hlsUrl);
                 hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play();
-                });
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                // دعم Safari و iOS
-                video.src = streamSource;
-                video.addEventListener('loadedmetadata', () => {
-                    video.play();
-                });
+                video.src = hlsUrl;
+                video.play();
             }
-
-            // إخفاء الغطاء العلوي عند البدء
-            overlay.style.display = 'none';
-            
-            // إخفاء البانر العلوي لتقليل التشتت عند المشاهدة
-            document.getElementById('banner-top').style.visibility = 'hidden';
-            document.getElementById('banner-top').style.height = '0px';
-            document.getElementById('banner-top').style.margin = '0px';
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('top-banner').style.display = 'none'; // إخفاء الإعلان عند التشغيل
         }
 
-        // تحديث البيانات عند فتح الصفحة
-        updateSheetData();
-        // تحديث البيانات تلقائياً كل دقيقتين في حال تغير الرابط
-        setInterval(updateSheetData, 120000);
+        loadMatch();
+        setInterval(loadMatch, 60000); // تحديث البيانات كل دقيقة
     </script>
 </body>
 </html>
