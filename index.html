@@ -3,221 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAL LIVE | المباريات المباشرة</title>
+    <title>بث مباشر - المتصفح فقط</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        :root {
-            --primary: #f97316;
-            --bg: #0b0f1a;
-            --card: #161d2f;
-            --text: #ffffff;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* هيدر بسيط */
-        header {
-            width: 100%;
-            padding: 20px 0;
-            text-align: center;
-            background: linear-gradient(to bottom, #161d2f, transparent);
-        }
-
-        .logo {
-            font-size: 26px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .logo span { color: var(--primary); }
-
-        /* منطقة المشغل */
-        .main-container {
-            width: 95%;
-            max-width: 1000px;
-            margin-top: 10px;
-        }
-
-        .video-wrapper {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 1px solid #2d3748;
-        }
-
-        iframe { width: 100%; height: 100%; border: none; }
-
-        /* سلايدر المباريات */
-        .match-label {
-            margin: 25px 0 10px;
-            font-weight: bold;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .match-label::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: var(--primary);
-            display: inline-block;
-            border-radius: 10px;
-        }
-
-        .match-slider {
-            display: flex;
-            overflow-x: auto;
-            gap: 15px;
-            padding: 10px 5px 30px;
-            scrollbar-width: none; /* Firefox */
-        }
-
-        .match-slider::-webkit-scrollbar { display: none; }
-
-        .match-card {
-            flex: 0 0 180px;
-            background: var(--card);
-            border: 1px solid #2d3748;
-            border-radius: 18px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .match-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-        }
-
-        .match-card.active {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .match-card .time {
-            font-size: 12px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            display: block;
-            opacity: 0.8;
-        }
-
-        .match-card .team {
-            font-size: 14px;
-            font-weight: 700;
-            margin: 4px 0;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .match-card .vs {
-            font-size: 10px;
-            opacity: 0.5;
-            margin: 2px 0;
-        }
-
-        /* زر التليجرام */
-        .telegram-btn {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            background: #229ED9;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 10px 20px rgba(34, 158, 217, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-        }
+        :root { --main: #2563eb; --dark: #0f172a; --text: #f8fafc; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--dark); color: var(--text); margin: 0; text-align: center; }
+        .wrapper { width: 95%; max-width: 850px; margin: 20px auto; }
+        .ad-space { background: #1e293b; padding: 10px; margin: 10px 0; border-radius: 8px; min-height: 90px; }
+        .match-box { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-bottom: 4px solid var(--main); }
+        #player-container { position: relative; background: #000; border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; }
+        video { width: 100%; height: 100%; }
+        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+        .play-btn { background: var(--main); color: white; border: none; padding: 15px 40px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .note { font-size: 0.8rem; color: #94a3b8; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">GOAL<span>LIVE</span></div>
-    </header>
+<div class="wrapper">
+    <h2>🔴 مشاهدة المباراة مباشرة عبر المتصفح</h2>
 
-    <div class="main-container">
-        <div class="video-wrapper">
-            <iframe id="mainPlayer" src="" allowfullscreen allow="autoplay"></iframe>
-        </div>
-
-        <div class="match-label">مباريات اليوم المباشرة</div>
-
-        <div class="match-slider" id="match-list">
-            <div style="text-align: center; width: 100%; opacity: 0.5;">جاري تحميل جدول المباريات...</div>
-        </div>
+    <div class="ad-space" id="top-ad">
+        <div style="color:#475569">إعلان متجاوب العلوي</div>
     </div>
 
-    <a href="https://t.me/YOUR_CHANNEL" class="telegram-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.467 8.246l-1.98 9.33c-.146.659-.537.818-1.084.508l-3.018-2.223-1.457 1.401c-.161.161-.297.297-.61.297l.217-3.078 5.602-5.06c.244-.217-.054-.338-.378-.122l-6.924 4.359-2.984-.933c-.648-.204-.66-.648.135-.958l11.665-4.496c.54-.197 1.013.141.398.775z"/></svg>
-        إشترك في التليجرام
-    </a>
+    <div class="match-box">
+        <h3 id="m-name">جاري جلب البيانات...</h3>
+        <p id="m-time">--:--</p>
+    </div>
 
-    <script>
-        // رابط الـ CSV المباشر
-        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv";
+    <div id="player-container">
+        <div class="overlay" id="overlay">
+            <button class="play-btn" onclick="initPlayer()">▶️ تشغيل البث</button>
+            <p class="note">يعمل عبر المتصفح فقط</p>
+        </div>
+        <video id="video" controls playsinline></video>
+    </div>
+</div>
 
-        async function init() {
-            try {
-                const response = await fetch(CSV_URL + "&cache=" + Date.now());
-                const text = await response.text();
-                const rows = text.split('\n').slice(1);
-                const list = document.getElementById('match-list');
-                list.innerHTML = "";
+<script>
+    // ضع رابط الـ CSV من Google Sheets هنا
+    const CSV_URL = 'ضع_رابط_CSV_هنا'; 
+    let finalStreamUrl = "";
 
-                rows.forEach((row, index) => {
-                    const col = row.split(',');
-                    if (col.length < 4) return;
-
-                    const [team1, team2, time, stream] = col;
-                    
-                    const card = document.createElement('div');
-                    card.className = "match-card";
-                    card.onclick = function() {
-                        document.getElementById('mainPlayer').src = stream.trim();
-                        document.querySelectorAll('.match-card').forEach(c => c.classList.remove('active'));
-                        this.classList.add('active');
-                        window.scrollTo({top: 0, behavior: 'smooth'});
-                    };
-
-                    card.innerHTML = `
-                        <span class="time">${time}</span>
-                        <span class="team">${team1}</span>
-                        <span class="vs">VS</span>
-                        <span class="team">${team2}</span>
-                    `;
-                    list.appendChild(card);
-
-                    // تشغيل أول مباراة تلقائياً عند الدخول
-                    if (index === 0) card.click();
-                });
-            } catch (e) {
-                document.getElementById('match-list').innerHTML = "فشل في تحميل المباريات.";
+    async function getMatchData() {
+        try {
+            const response = await fetch(CSV_URL);
+            const data = await response.text();
+            
+            // تحويل CSV إلى مصفوفة (تخطي السطر الأول)
+            const rows = data.split('\n').slice(1);
+            if(rows[0]) {
+                const [match, time, url] = rows[0].split(',');
+                document.getElementById('m-name').innerText = match;
+                document.getElementById('m-time').innerText = "التوقيت: " + time;
+                finalStreamUrl = url.trim();
             }
+        } catch (e) {
+            document.getElementById('m-name').innerText = "خطأ في اتصال البيانات";
         }
+    }
 
-        init();
-    </script>
+    function initPlayer() {
+        if (!finalStreamUrl) return alert("الرابط غير متاح");
+        
+        const video = document.getElementById('video');
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(finalStreamUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = finalStreamUrl;
+            video.play();
+        }
+        
+        document.getElementById('overlay').style.display = 'none';
+        // لا يوجد أكواد إعلانية هنا لضمان عدم إزعاج المشاهد بعد البدء
+    }
+
+    // التحديث التلقائي
+    getMatchData();
+    setInterval(getMatchData, 30000); // تحديث كل 30 ثانية
+</script>
+
 </body>
 </html>
