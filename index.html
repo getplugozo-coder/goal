@@ -3,40 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAL LIVE | المشغل الداخلي</title>
+    <title>LIVE PLAYER | البث المباشر</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #050a12; color: white; margin: 0; padding-bottom: 50px; }
-        #video-container { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .match-card { background: #101927; border: 1px solid #1f2937; border-radius: 1rem; transition: 0.3s; cursor: pointer; }
-        .match-card:hover { border-color: #f97316; }
-        .active-match { border: 2px solid #f97316; background: #1e293b; }
+        body { font-family: sans-serif; background-color: #020617; color: white; margin: 0; }
+        #video-box { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #f97316; }
+        video { width: 100%; height: 100%; }
+        .match-card { background: #0f172a; border-radius: 12px; padding: 15px; cursor: pointer; border: 1px solid #1e293b; margin-bottom: 10px; }
+        .match-card:active { transform: scale(0.98); background: #1e293b; }
     </style>
 </head>
 <body>
 
-    <div id="video-container">
-        <div id="player" style="width: 100%; height: 100%;">
-            <div class="flex flex-col items-center justify-center h-full text-gray-500">
-                <svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <p class="font-bold">اختر مباراة لبدء البث المباشر</p>
-            </div>
+    <div id="video-box">
+        <video id="video" controls autoplay playsinline></video>
+    </div>
+
+    <div class="p-4 max-w-md mx-auto">
+        <h1 class="text-xl font-bold text-orange-500 mb-4 text-center italic font-black">GOAL LIVE PRO</h1>
+        <div id="match-list">
+            <p class="text-center text-gray-500">جاري تحميل المباريات...</p>
         </div>
     </div>
-
-    <div class="max-w-md mx-auto my-4 h-12 bg-slate-900/50 rounded flex items-center justify-center border border-dashed border-slate-700 text-[10px] text-gray-600">
-        مساحة إعلانية (Banner Ad)
-    </div>
-
-    <header class="text-center py-4">
-        <h1 class="text-2xl font-black text-orange-500 italic">GOAL<span class="text-white">LIVE</span></h1>
-    </header>
-
-    <main id="match-list" class="max-w-md mx-auto px-4 space-y-3">
-        <div class="text-center py-10">جاري تحميل المباريات...</div>
-    </main>
 
     <script>
         const SERVER = "http://hikcoo.xyz:8080";
@@ -44,69 +33,63 @@
         const PASS = "6019132685779108";
         const SHEET_API = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89";
 
-        let player;
+        const video = document.getElementById('video');
 
-        // وظيفة تشغيل القناة
-        function playChannel(id, teamName, element) {
-            const streamUrl = `${SERVER}/live/${USER}/${PASS}/${id}.m3u8`;
+        function playStream(id) {
+            // تنظيف الرابط باش نحيدو أي فراغات
+            const streamUrl = `${SERVER}/live/${USER}/${PASS}/${id.trim()}.m3u8`;
             
-            // حذف المشغل القديم إيلا كان
-            if (player) { player.destroy(); }
-
-            // إنشاء مشغل جديد
-            player = new Clappr.Player({
-                source: streamUrl,
-                parentId: "#player",
-                width: '100%',
-                height: '100%',
-                autoPlay: true,
-                mimeType: "application/x-mpegURL",
-                mediacontrol: {seekbar: "#f97316", buttons: "#ffffff"},
-                actualLiveTime: true,
-            });
-
-            // تعليم المباراة المختارة
-            document.querySelectorAll('.match-card').forEach(card => card.classList.remove('active-match'));
-            element.classList.add('active-match');
-
-            // التمرير للفوق تلقائياً
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    xhrSetup: function(xhr, url) {
+                        xhr.withCredentials = false; // مهم لتخطي بعض أنواع الحظر
+                    }
+                });
+                hls.loadSource(streamUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        console.log("حدث خطأ في البث، قد يكون السيرفر متوقف أو محظور.");
+                    }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = streamUrl;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        async function loadMatches() {
+        async function getMatches() {
             try {
-                const response = await fetch(SHEET_API);
-                const data = await response.json();
+                const res = await fetch(SHEET_API);
+                const data = await res.json();
                 const list = document.getElementById('match-list');
                 list.innerHTML = "";
 
                 data.forEach(m => {
                     const card = document.createElement('div');
-                    card.className = "match-card p-4 flex items-center justify-between";
-                    card.onclick = () => playChannel(m.streams, m.team1, card);
-
+                    card.className = "match-card";
+                    card.onclick = () => playStream(m.streams);
                     card.innerHTML = `
-                        <div class="flex-1 text-center">
-                            <img src="${m.logo1}" class="w-10 h-10 mx-auto object-contain mb-1">
-                            <div class="text-[10px] font-bold truncate">${m.team1}</div>
-                        </div>
-                        <div class="px-4 text-center">
-                            <div class="text-sm font-black text-orange-500">${m.time}</div>
-                            <div class="text-[8px] text-gray-500 uppercase">${m.league}</div>
-                        </div>
-                        <div class="flex-1 text-center">
-                            <img src="${m.logo2}" class="w-10 h-10 mx-auto object-contain mb-1">
-                            <div class="text-[10px] font-bold truncate">${m.team2}</div>
+                        <div class="flex justify-between items-center text-sm font-bold">
+                            <span>${m.team1}</span>
+                            <span class="text-orange-500 bg-orange-500/10 px-2 py-1 rounded">${m.time}</span>
+                            <span>${m.team2}</span>
                         </div>
                     `;
                     list.appendChild(card);
                 });
             } catch (e) {
-                document.getElementById('match-list').innerHTML = "خطأ في جلب البيانات";
+                document.getElementById('match-list').innerHTML = "خطأ في الاتصال بالجدول!";
             }
         }
 
-        loadMatches();
+        getMatches();
     </script>
 </body>
 </html>
