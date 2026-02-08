@@ -3,61 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAL LIVE | PRO</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>GOAL LIVE | GitHub Edition</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <style>
-        body { background-color: #050a12; color: white; font-family: sans-serif; }
-        .player-box { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; z-index: 50; border-bottom: 2px solid #f97316; }
+        body { background-color: #020617; color: white; font-family: sans-serif; margin: 0; }
+        .player-area { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; border-bottom: 2px solid #f97316; }
         iframe { width: 100%; height: 100%; border: none; }
-        .card { background: #101927; border: 1px solid #1e293b; border-radius: 12px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
-        .card:hover { border-color: #f97316; }
+        .container { max-width: 500px; margin: 20px auto; padding: 10px; }
+        .match-card { 
+            background: #0f172a; border: 1px solid #1e293b; padding: 15px; 
+            border-radius: 12px; margin-bottom: 10px; display: flex; 
+            justify-content: space-between; align-items: center; cursor: pointer;
+        }
+        .match-card:hover { border-color: #f97316; }
+        #status { text-align: center; color: #64748b; margin-top: 20px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="player-box">
-        <iframe id="mainPlayer" src="" allowfullscreen></iframe>
+    <div class="player-area">
+        <iframe id="livePlayer" src="" allowfullscreen></iframe>
     </div>
 
-    <div class="p-4 max-w-md mx-auto">
+    <div class="container">
         <div id="match-list">
-            <p class="text-center text-gray-600">جاري جلب المباريات...</p>
+            <div id="status">جاري جلب البيانات من GitHub...</div>
         </div>
     </div>
 
     <script>
-        // رابط SheetBest مع إضافة كود لمنع الكاش
-        const API = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89?_t=" + Date.now();
+        // استعمال HTTPS ضروري في GitHub
+        const API_KEY = "https://api.sheetbest.com/sheets/313e8eb7-119d-43a8-90da-84017bbe3e89";
 
-        function play(url) {
-            document.getElementById('mainPlayer').src = url;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        async function init() {
+            const list = document.getElementById('match-list');
+            try {
+                // إضافة التوقيت لمنع المتصفح من قراءة النسخة القديمة (Cache)
+                const res = await fetch(`${API_KEY}?_t=${Date.now()}`);
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    list.innerHTML = "<div id='status'>لا توجد مباريات حالياً</div>";
+                    return;
+                }
+
+                list.innerHTML = ""; 
+                data.forEach(m => {
+                    const card = document.createElement('div');
+                    card.className = "match-card";
+                    card.onclick = () => {
+                        // تحويل الرابط لـ HTTPS إذا كان ممكناً لتفادي البلوك في الحاسوب
+                        let streamUrl = m.streams.replace("http://", "https://");
+                        document.getElementById('livePlayer').src = streamUrl;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    };
+                    card.innerHTML = `
+                        <span style="width:35%">${m.team1}</span>
+                        <span style="color:#f97316; font-weight:bold">${m.time}</span>
+                        <span style="width:35%; text-align:left">${m.team2}</span>
+                    `;
+                    list.appendChild(card);
+                });
+            } catch (err) {
+                list.innerHTML = "<div id='status text-red-500'>خطأ في تحميل الجدول. تأكد من إعدادات HTTPS</div>";
+            }
         }
 
-        // هاد السطر كيضمن أن الكود يخدم حتى توجد الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch(API)
-                .then(res => res.json())
-                .then(data => {
-                    const list = document.getElementById('match-list');
-                    list.innerHTML = "";
-                    data.forEach(m => {
-                        const div = document.createElement('div');
-                        div.className = "card p-4 flex justify-between items-center";
-                        div.onclick = () => play(m.streams);
-                        div.innerHTML = `
-                            <span class="font-bold text-sm">${m.team1}</span>
-                            <span class="text-orange-500 font-black text-xs">${m.time}</span>
-                            <span class="font-bold text-sm">${m.team2}</span>
-                        `;
-                        list.appendChild(div);
-                    });
-                })
-                .catch(err => {
-                    document.getElementById('match-list').innerHTML = "خطأ: جرب إيقاف مانع الإعلانات (AdBlock)";
-                    console.error("Error fetching data:", err);
-                });
-        });
+        init();
     </script>
 </body>
 </html>
