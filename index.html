@@ -3,84 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAL LIVE | النسخة السريعة</title>
+    <title>GOAL LIVE | PRO</title>
     <style>
-        body { background: #020617; color: white; font-family: sans-serif; margin: 0; padding: 0; }
-        .player-area { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; border-bottom: 2px solid #f97316; z-index: 100; }
-        iframe { width: 100%; height: 100%; border: none; }
-        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
-        .match-card { 
-            background: #0f172a; border: 1px solid #1e293b; padding: 15px; 
-            border-radius: 12px; margin-bottom: 12px; display: flex; 
-            justify-content: space-between; align-items: center; cursor: pointer;
-            transition: 0.2s;
+        :root { --primary: #f97316; --bg: #020617; --card: #0f172a; --tg: #229ED9; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 80px; }
+        
+        /* الهيدر */
+        header { padding: 15px; text-align: center; background: #0f172a; border-bottom: 1px solid #1e293b; }
+        .logo { font-size: 22px; font-weight: 900; color: var(--primary); font-style: italic; }
+        .logo span { color: white; }
+
+        /* Slider المباريات علوي */
+        .match-slider {
+            display: flex; overflow-x: auto; padding: 15px; gap: 12px;
+            scrollbar-width: none; border-bottom: 1px solid #1e293b;
         }
-        .match-card:hover { border-color: #f97316; background: #131e33; }
-        .team { font-weight: bold; font-size: 14px; width: 40%; }
-        .time { color: #f97316; font-weight: 900; font-size: 15px; }
-        #status { text-align: center; color: #64748b; padding: 20px; font-size: 14px; }
+        .match-slider::-webkit-scrollbar { display: none; }
+        .match-item {
+            flex: 0 0 140px; background: var(--card); border: 1px solid #1e293b;
+            border-radius: 12px; padding: 10px; text-align: center; cursor: pointer;
+        }
+        .match-item.active { border-color: var(--primary); background: #1e293b; }
+        .match-item .time { font-size: 10px; color: var(--primary); font-weight: bold; }
+        .match-item .team { font-size: 12px; font-weight: bold; display: block; margin: 3px 0; }
+
+        /* منطقة المشغل */
+        .player-section { width: 100%; max-width: 800px; margin: 0 auto; padding: 15px; box-sizing: border-box; }
+        .video-container { 
+            width: 100%; aspect-ratio: 16/9; background: #000; 
+            border-radius: 15px; overflow: hidden; border: 1px solid #1e293b;
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* أزرار القنوات */
+        .channels-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px;
+        }
+        .chan-btn {
+            background: var(--card); border: 1px solid #1e293b; color: white;
+            padding: 10px; border-radius: 8px; font-size: 12px; font-weight: bold;
+            cursor: pointer; transition: 0.2s; text-align: center;
+        }
+        .chan-btn:hover { background: var(--primary); border-color: var(--primary); }
+
+        /* زر التليجرام العائم */
+        .tg-float {
+            position: fixed; bottom: 20px; left: 20px;
+            background: var(--tg); color: white; padding: 12px 20px;
+            border-radius: 50px; text-decoration: none; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(34, 158, 217, 0.4);
+            display: flex; align-items: center; gap: 8px; z-index: 1000;
+        }
     </style>
 </head>
 <body>
 
-    <div class="player-area">
-        <iframe id="mainPlayer" src="" allowfullscreen allow="autoplay"></iframe>
+    <header><div class="logo">GOAL<span>LIVE</span></div></header>
+
+    <div class="match-slider" id="match-list">
+        <div style="padding:10px; font-size:12px; color:#64748b;">جاري التحميل...</div>
     </div>
 
-    <div class="container">
-        <h2 style="text-align: center; color: #f97316; font-style: italic;">مباريات اليوم</h2>
-        <div id="match-list">
-            <div id="status">جاري جلب القنوات...</div>
+    <div class="player-section">
+        <div class="video-container">
+            <iframe id="mainPlayer" src="" allowfullscreen allow="autoplay"></iframe>
+        </div>
+
+        <h3 style="font-size: 14px; margin: 20px 0 10px; color: var(--primary);">اختر القناة:</h3>
+        <div class="channels-grid">
+            <button class="chan-btn" onclick="play('https://رابط_قناة_1')">beIN 1 HD</button>
+            <button class="chan-btn" onclick="play('https://رابط_قناة_2')">beIN 2 HD</button>
+            <button class="chan-btn" onclick="play('https://رابط_قناة_3')">beIN 3 HD</button>
+            <button class="chan-btn" onclick="play('https://رابط_قناة_4')">SSC 1</button>
+            <button class="chan-btn" onclick="play('https://رابط_قناة_5')">AD SPORT</button>
+            <button class="chan-btn" onclick="play('https://رابط_قناة_6')">المغربية الرياضية</button>
         </div>
     </div>
 
+    <a href="https://t.me/YOUR_CHANNEL" class="tg-float" target="_blank">
+        <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.467 8.246l-1.98 9.33c-.146.659-.537.818-1.084.508l-3.018-2.223-1.457 1.401c-.161.161-.297.297-.61.297l.217-3.078 5.602-5.06c.244-.217-.054-.338-.378-.122l-6.924 4.359-2.984-.933c-.648-.204-.66-.648.135-.958l11.665-4.496c.54-.197.1013.141.398.775z"/></svg>
+        متابعة تليجرام
+    </a>
+
     <script>
-        // رابط الـ CSV ديالك اللي عطيتيني
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv";
+
+        function play(url) {
+            if(!url) return;
+            document.getElementById('mainPlayer').src = url.trim();
+        }
 
         async function loadMatches() {
             try {
-                // إضافة timestamp لتفادي الكاش
-                const response = await fetch(CSV_URL + "&t=" + new Date().getTime());
-                const csvData = await response.text();
-                
-                // تحويل الـ CSV لـ JSON
-                const rows = csvData.split('\n').slice(1); // تجاهل سطر العنوان
-                const listDiv = document.getElementById('match-list');
-                listDiv.innerHTML = "";
+                const res = await fetch(CSV_URL + "&t=" + Date.now());
+                const csv = await res.text();
+                const rows = csv.split('\n').slice(1);
+                const list = document.getElementById('match-list');
+                list.innerHTML = "";
 
-                rows.forEach(row => {
-                    const columns = row.split(',');
-                    if (columns.length < 4) return;
-
-                    // ترتيب الأعمدة: 0=team1, 1=team2, 2=time, 3=streams
-                    const team1 = columns[0];
-                    const team2 = columns[1];
-                    const time = columns[2];
-                    const streamUrl = columns[3].trim();
-
-                    const card = document.createElement('div');
-                    card.className = "match-card";
-                    card.onclick = () => {
-                        document.getElementById('mainPlayer').src = streamUrl;
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                rows.forEach((row, i) => {
+                    const cols = row.split(',');
+                    if (cols.length < 4) return;
+                    const item = document.createElement('div');
+                    item.className = "match-item";
+                    item.onclick = function() {
+                        play(cols[3]);
+                        document.querySelectorAll('.match-item').forEach(e => e.classList.remove('active'));
+                        this.classList.add('active');
                     };
-                    card.innerHTML = `
-                        <div class="team" style="text-align: right;">${team1}</div>
-                        <div class="time">${time}</div>
-                        <div class="team" style="text-align: left;">${team2}</div>
-                    `;
-                    listDiv.appendChild(card);
+                    item.innerHTML = `<span class="time">${cols[2]}</span><span class="team">${cols[0]}</span><span class="team">${cols[1]}</span>`;
+                    list.appendChild(item);
+                    if(i === 0) item.click();
                 });
-            } catch (error) {
-                document.getElementById('status').innerHTML = "خطأ في الاتصال. تأكد من نشر الجدول للويب.";
-                console.error(error);
-            }
+            } catch (e) { console.error("Error"); }
         }
-
         loadMatches();
-        // تحديث تلقائي كل دقيقة
-        setInterval(loadMatches, 60000);
     </script>
 </body>
 </html>
