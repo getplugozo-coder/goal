@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بث مباشر - واجهة المتصفح الذكية</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>دليل البث المباشر</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -22,105 +21,100 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
-        .container { width: 100%; max-width: 800px; padding: 15px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
 
-        /* مساحة إعلان HilltopAds */
+        /* إعلانات HilltopAds */
         .ad-space {
-            width: 100%; margin: 10px 0;
+            width: 100%; margin-bottom: 20px;
             background: #1e293b; border-radius: 8px;
             min-height: 90px; display: flex; justify-content: center; align-items: center;
+            border: 1px dashed #334155;
+        }
+
+        .match-card {
+            background: var(--card);
+            padding: 30px 20px; border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border: 1px solid #334155;
         }
 
         .league-tag {
             background: var(--primary);
             padding: 5px 15px; border-radius: 20px;
-            font-size: 0.8rem; display: inline-block; margin-bottom: 10px;
-        }
-
-        .match-card {
-            background: var(--card);
-            padding: 20px; border-radius: 20px;
-            text-align: center; margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            font-size: 0.8rem; margin-bottom: 15px; display: inline-block;
         }
 
         .teams-area {
-            display: flex; justify-content: space-between; align-items: center;
-            margin: 15px 0;
+            display: flex; justify-content: space-around; align-items: center;
+            margin: 20px 0;
         }
 
         .team { flex: 1; display: flex; flex-direction: column; align-items: center; }
-        
-        .team img {
-            width: 70px; height: 70px;
-            object-fit: contain; background: #334155;
-            padding: 10px; border-radius: 50%; margin-bottom: 10px;
-        }
-
+        .team img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; }
         .vs { font-weight: bold; font-size: 1.5rem; color: var(--accent); }
 
-        .time-box { color: #94a3b8; font-size: 1rem; border-top: 1px solid #334155; pt: 10px; }
+        .time-info { color: #94a3b8; margin-bottom: 25px; font-size: 1.1rem; }
 
-        .player-box {
-            position: relative; width: 100%; aspect-ratio: 16/9;
-            background: #000; border-radius: 15px; overflow: hidden;
+        .watch-btn {
+            display: block; width: 100%;
+            background: var(--accent); color: white;
+            text-decoration: none; padding: 18px;
+            font-size: 1.3rem; font-weight: bold;
+            border-radius: 12px; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
 
-        video { width: 100%; height: 100%; }
+        .watch-btn:hover { transform: translateY(-3px); background: #dc2626; }
 
-        .overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.85);
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10;
-        }
-
-        .play-btn {
-            background: var(--accent); color: white; border: none;
-            padding: 15px 40px; font-size: 1.2rem; font-weight: bold;
-            border-radius: 10px; cursor: pointer; transition: 0.3s;
-        }
-
-        .play-btn:hover { transform: scale(1.05); }
+        .notice { font-size: 0.75rem; color: #64748b; margin-top: 15px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2 style="text-align: center; font-size: 1.2rem;">🔴 مشاهدة مباشرة</h2>
+        <h2 style="text-align: center; margin-bottom: 30px;">🔴 اختر المباراة للمشاهدة</h2>
 
-        <div class="ad-space" id="top-banner">
-            <p style="color:#475569">مساحة إعلان 728x90</p>
+        <div class="ad-space" id="hilltop-banner">
+            <p style="color:#475569">إعلان 728x90 / 300x250</p>
         </div>
 
         <div class="match-card">
-            <span class="league-tag" id="league-name">الدوري</span>
+            <span class="league-tag" id="league-name">جاري التحميل...</span>
+            
             <div class="teams-area">
                 <div class="team">
-                    <img id="logo1" src="https://via.placeholder.com/70" alt="team1">
-                    <b id="team1-name">الفريق 1</b>
+                    <img id="logo1" src="https://via.placeholder.com/80?text=?" alt="Team 1">
+                    <b id="team1-name">---</b>
                 </div>
                 <div class="vs">VS</div>
                 <div class="team">
-                    <img id="logo2" src="https://via.placeholder.com/70" alt="team2">
-                    <b id="team2-name">الفريق 2</b>
+                    <img id="logo2" src="https://via.placeholder.com/80?text=?" alt="Team 2">
+                    <b id="team2-name">---</b>
                 </div>
             </div>
-            <div class="time-box" id="match-time">00:00</div>
-        </div>
 
-        <div class="player-box">
-            <div class="overlay" id="overlay">
-                <button class="play-btn" onclick="startPlay()">▶️ تشغيل البث</button>
-                <p style="font-size: 0.7rem; color: #64748b; margin-top: 10px;">يعمل عبر المتصفح فقط</p>
-            </div>
-            <video id="video" controls playsinline></video>
+            <div class="time-info" id="match-time">--:--</div>
+
+            <a href="#" id="stream-link" target="_blank" class="watch-btn" onclick="triggerPopunder()">
+                🚀 مشاهدة الآن (Google Chrome)
+            </a>
+
+            <p class="notice">سيتم فتح الرابط في نافذة جديدة عبر متصفحك مباشرة.</p>
         </div>
     </div>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv';
-        let hlsUrl = "";
+        function triggerPopunder() {
+            // هنا تضع كود فتح البوب أندر إذا لم يكن تلقائياً
+            console.log("Ad Triggered");
+        }
+    </script>
 
-        async function loadMatch() {
+    <script>
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTA1AfMuoKpNaNWmGvHet37YlVYE1ozZQt43OGy9bjNd-9a7YiHyKf2xp3MHzf_WoAagroiGceF1co/pub?output=csv';
+
+        async function updateContent() {
             try {
                 const response = await fetch(CSV_URL);
                 const data = await response.text();
@@ -133,33 +127,22 @@
                     document.getElementById('team2-name').innerText = t2;
                     document.getElementById('match-time').innerText = "توقيت المباراة: " + time;
                     document.getElementById('league-name').innerText = league;
-                    hlsUrl = stream;
+                    
+                    // تحديث رابط الزر
+                    document.getElementById('stream-link').href = stream;
 
-                    // جلب الشعارات تلقائياً (بحث بالاسم)
-                    document.getElementById('logo1').src = `https://logo.clearbit.com/${t1.replace(/\s/g, '')}.com?size=70&fallback=https://via.placeholder.com/70/1e293b/white?text=${t1[0]}`;
-                    document.getElementById('logo2').src = `https://logo.clearbit.com/${t2.replace(/\s/g, '')}.com?size=70&fallback=https://via.placeholder.com/70/1e293b/white?text=${t2[0]}`;
+                    // تحديث الشعارات
+                    document.getElementById('logo1').src = `https://logo.clearbit.com/${t1.replace(/\s/g, '')}.com?size=80&fallback=https://via.placeholder.com/80/1e293b/white?text=${t1[0]}`;
+                    document.getElementById('logo2').src = `https://logo.clearbit.com/${t2.replace(/\s/g, '')}.com?size=80&fallback=https://via.placeholder.com/80/1e293b/white?text=${t2[0]}`;
                 }
-            } catch (e) { console.error("Error loading CSV"); }
-        }
-
-        function startPlay() {
-            if(!hlsUrl) return;
-            const video = document.getElementById('video');
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(hlsUrl);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = hlsUrl;
-                video.play();
+            } catch (e) {
+                console.error("CSV Error");
             }
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('top-banner').style.display = 'none'; // إخفاء الإعلان عند التشغيل
         }
 
-        loadMatch();
-        setInterval(loadMatch, 60000); // تحديث البيانات كل دقيقة
+        updateContent();
+        setInterval(updateContent, 60000); // تحديث كل دقيقة
     </script>
+
 </body>
 </html>
